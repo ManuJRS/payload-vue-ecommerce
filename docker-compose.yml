@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # 1. Base de datos PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: local-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: payload_user
+      POSTGRES_PASSWORD: payload_password
+      POSTGRES_DB: payload_ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payload_user -d payload_ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend Payload CMS
+  payload:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: local-payload
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URI: postgres://payload_user:payload_password@postgres:5432/payload_ecommerce
+      PAYLOAD_SECRET: clave_secreta_super_segura_dev_123
+      PAYLOAD_PUBLIC_SERVER_URL: http://localhost:3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/.next
+      - media_uploads:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 3. Frontend Vue 3
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: local-vue-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_PAYLOAD_API_URL: http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - payload
+
+volumes:
+  postgres_data:
+  media_uploads:
