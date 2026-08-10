@@ -29,6 +29,8 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URI: postgres://payload_user:payload_password@postgres:5432/payload_ecommerce
       PAYLOAD_SECRET: clave_secreta_super_segura_dev_123
