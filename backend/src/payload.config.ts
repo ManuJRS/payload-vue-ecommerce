@@ -25,6 +25,12 @@ import { plugins } from './plugins'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173'
+const serverURL =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+  'http://localhost:3000'
+
 export default buildConfig({
   admin: {
     components: {
@@ -34,6 +40,8 @@ export default buildConfig({
     user: Users.slug,
   },
   collections: [Users, Pages, Categories, Media],
+  cors: [serverURL, frontendURL].filter(Boolean),
+  csrf: [serverURL, frontendURL].filter(Boolean),
   db: postgresAdapter({
     pool: {
       // Se utiliza DATABASE_URI o DATABASE_URL para asegurar compatibilidad
