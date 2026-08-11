@@ -1,4 +1,5 @@
 import type { PageHero, PayloadBlock } from '@/types/blocks'
+import type { NavItem } from '@/utils/nav'
 import api from './api'
 
 export type PayloadDoc = {
@@ -40,6 +41,13 @@ export type Page = PayloadDoc & {
   layout?: PayloadBlock[] | null
   meta?: unknown
   _status?: 'draft' | 'published' | null
+}
+
+export type HeaderGlobal = {
+  id: number | string
+  navItems?: NavItem[] | null
+  updatedAt?: string | null
+  createdAt?: string | null
 }
 
 const publishedOnly = {
@@ -88,6 +96,17 @@ export const payloadService = {
     })
 
     return data.docs[0] ?? null
+  },
+
+  /** Global Header con navItems. */
+  async getHeader() {
+    const { data } = await api.get<HeaderGlobal>('/api/globals/header', {
+      params: {
+        depth: 1,
+      },
+    })
+
+    return data
   },
 }
 
