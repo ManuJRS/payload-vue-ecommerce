@@ -50,6 +50,8 @@ export type HeaderGlobal = {
   createdAt?: string | null
 }
 
+export type FooterGlobal = HeaderGlobal
+
 const publishedOnly = {
   'where[_status][equals]': 'published',
 } as const
@@ -101,6 +103,17 @@ export const payloadService = {
   /** Global Header con navItems. */
   async getHeader() {
     const { data } = await api.get<HeaderGlobal>('/api/globals/header', {
+      params: {
+        depth: 1,
+      },
+    })
+
+    return data
+  },
+
+  /** Global Footer con navItems. */
+  async getFooter() {
+    const { data } = await api.get<FooterGlobal>('/api/globals/footer', {
       params: {
         depth: 1,
       },
