@@ -1,40 +1,36 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
-import SiteFooter from '@/components/SiteFooter.vue'
-import { useCartStore } from '@/stores/cart'
+import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { payloadService } from '@/services/payloadService'
 import { isExternalHref, resolveNavHref, type NavItem } from '@/utils/nav'
 
-const cart = useCartStore()
 const navItems = ref<NavItem[]>([])
-const navError = ref<string | null>(null)
+const error = ref<string | null>(null)
+const year = new Date().getFullYear()
 
-const cartLabel = computed(() => `${cart.itemCount} artículo${cart.itemCount === 1 ? '' : 's'}`)
-
-const loadHeader = async () => {
+const loadFooter = async () => {
   try {
-    const header = await payloadService.getHeader()
-    navItems.value = Array.isArray(header.navItems) ? header.navItems : []
-    navError.value = null
+    const footer = await payloadService.getFooter()
+    navItems.value = Array.isArray(footer.navItems) ? footer.navItems : []
+    error.value = null
   } catch (err) {
     navItems.value = []
-    navError.value = err instanceof Error ? err.message : 'No se pudo cargar el menú.'
+    error.value = err instanceof Error ? err.message : 'No se pudo cargar el footer.'
   }
 }
 
-onMounted(loadHeader)
+onMounted(loadFooter)
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <RouterLink to="/" class="text-lg font-semibold tracking-tight text-slate-900">
+  <footer class="mt-auto border-t border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <RouterLink to="/" class="text-base font-semibold tracking-tight text-slate-900">
           Payload <span class="text-indigo-600">Vue</span> Shop
         </RouterLink>
 
-        <nav class="flex flex-wrap items-center justify-end gap-3 text-sm font-medium text-slate-600">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-600">
           <template
             v-for="(item, index) in navItems"
             :key="item.id || `${item.link?.label}-${index}`"
@@ -59,25 +55,26 @@ onMounted(loadHeader)
               {{ item.link.label }}
             </RouterLink>
           </template>
-
-          <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-            Carrito · {{ cartLabel }}
-          </span>
         </nav>
       </div>
 
       <p
-        v-if="navError"
-        class="mx-auto max-w-6xl px-4 pb-3 text-xs text-rose-600 sm:px-6 lg:px-8"
+        v-if="error"
+        class="text-xs text-rose-600"
       >
-        {{ navError }}
+        {{ error }}
       </p>
-    </header>
 
-    <main class="flex-1">
-      <RouterView />
-    </main>
+      <p
+        v-else-if="navItems.length === 0"
+        class="text-xs text-slate-400"
+      >
+        Aún no hay enlaces en el footer. Configúralos en Payload → Globals → Footer.
+      </p>
 
-    <SiteFooter />
-  </div>
+      <div class="border-t border-slate-100 pt-4 text-xs text-slate-500">
+        © {{ year }} Payload Vue Shop. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
 </template>
