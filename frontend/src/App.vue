@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import CartDrawer from '@/components/CartDrawer.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useCartStore } from '@/stores/cart'
 import { payloadService } from '@/services/payloadService'
@@ -9,8 +10,7 @@ import { isExternalHref, resolveNavHref, type NavItem } from '@/utils/nav'
 const cart = useCartStore()
 const navItems = ref<NavItem[]>([])
 const navError = ref<string | null>(null)
-
-const cartLabel = computed(() => `${cart.itemCount} artículo${cart.itemCount === 1 ? '' : 's'}`)
+const isCartOpen = ref(false)
 
 const loadHeader = async () => {
   try {
@@ -60,9 +60,19 @@ onMounted(loadHeader)
             </RouterLink>
           </template>
 
-          <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-            Carrito · {{ cartLabel }}
-          </span>
+          <button
+            type="button"
+            class="relative rounded-full bg-emerald-600 px-3 py-1.5 font-medium text-white transition hover:bg-emerald-500"
+            aria-label="Abrir carrito"
+            @click="isCartOpen = true"
+          >
+            Carrito
+            <span
+              class="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-white px-1.5 py-0.5 text-xs font-semibold text-emerald-700"
+            >
+              {{ cart.itemCount }}
+            </span>
+          </button>
         </nav>
       </div>
 
@@ -79,5 +89,7 @@ onMounted(loadHeader)
     </main>
 
     <SiteFooter />
+
+    <CartDrawer v-model:open="isCartOpen" />
   </div>
 </template>
