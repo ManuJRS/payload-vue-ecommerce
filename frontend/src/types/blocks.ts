@@ -34,7 +34,7 @@ export type PayloadBlock = {
 }
 
 export type PageHero = {
-  type?: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | string | null
+  type?: 'none' | 'highImpact' | 'mediumImpact' | 'medium' | 'lowImpact' | string | null
   richText?: LexicalRichText
   media?: number | MediaRef
   links?: unknown
