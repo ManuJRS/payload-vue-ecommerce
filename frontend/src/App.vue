@@ -27,7 +27,7 @@ onMounted(loadHeader)
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+  <div class="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 text-slate-900">
     <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <RouterLink to="/" class="text-lg font-semibold tracking-tight text-slate-900">
