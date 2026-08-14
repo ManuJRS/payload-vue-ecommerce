@@ -48,24 +48,28 @@ const resolvedSubheading = computed(() => {
 
 const richTextHtml = computed(() => lexicalToHtml(sourceRichText.value))
 const mediaUrl = computed(() => getMediaUrl(props.media))
-const isHighImpact = computed(() => props.type === 'highImpact' || props.type === 'mediumImpact')
+const isMedium = computed(() => props.type === 'medium')
+const heroHeightClass = computed(() => (isMedium.value ? 'min-h-[50vh]' : 'min-h-svh'))
 </script>
 
 <template>
   <section
-    class="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-indigo-950 to-emerald-950 text-white shadow-xl"
-    :class="isHighImpact ? 'min-h-[28rem]' : 'min-h-[18rem]'"
+    class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex w-screen overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-emerald-950 text-white"
+    :class="heroHeightClass"
   >
     <div
       v-if="mediaUrl"
-      class="absolute inset-0 opacity-40"
+      class="absolute inset-0"
       aria-hidden="true"
     >
       <img :src="mediaUrl" :alt="resolvedHeading" class="h-full w-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-indigo-950/70 to-emerald-900/40" />
     </div>
 
-    <div class="relative z-10 mx-auto flex h-full max-w-5xl flex-col justify-end gap-4 px-6 py-12 sm:px-10 sm:py-16">
+    <div
+      class="relative z-10 mx-auto flex w-full max-w-6xl flex-col justify-end gap-4 px-6 py-16 sm:px-10 sm:py-24"
+      :class="heroHeightClass"
+    >
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
         Payload Commerce
       </p>

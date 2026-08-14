@@ -32,6 +32,10 @@ export const hero: Field = {
           value: 'mediumImpact',
         },
         {
+          label: 'Medium',
+          value: 'medium',
+        },
+        {
           label: 'Low Impact',
           value: 'lowImpact',
         },
