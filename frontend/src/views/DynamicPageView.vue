@@ -4,19 +4,11 @@ import { useRoute } from 'vue-router'
 import BlockRenderer from '@/components/blocks/BlockRenderer.vue'
 import HeroBlock from '@/components/blocks/HeroBlock.vue'
 import { usePageBySlug } from '@/composables/usePageBySlug'
-import { lexicalToPlainText } from '@/utils/lexical'
 
 const route = useRoute()
 const pageSlug = computed(() => String(route.params.slug || ''))
 
 const { pageData, layout, hero, loading, error } = usePageBySlug(pageSlug)
-
-const heroHeading = computed(
-  () =>
-    pageData.value?.title ||
-    lexicalToPlainText(hero.value?.richText) ||
-    pageSlug.value,
-)
 </script>
 
 <template>
@@ -42,10 +34,13 @@ const heroHeading = computed(
     <template v-else-if="pageData">
       <HeroBlock
         v-if="hero && hero.type !== 'none'"
-        :heading="heroHeading"
         :type="hero.type"
-        :rich-text="hero.richText"
+        :tag="hero.tag"
+        :title="hero.title"
+        :description="hero.description"
         :media="hero.media"
+        :primary-button="hero.primaryButton"
+        :secondary-button="hero.secondaryButton"
       />
 
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
