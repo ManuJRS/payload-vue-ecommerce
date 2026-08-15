@@ -37,6 +37,9 @@ services:
       PAYLOAD_PUBLIC_SERVER_URL: http://localhost:3000
       FRONTEND_URL: http://localhost:5173
       NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CI: "true"
+    stdin_open: false
+    tty: false
     volumes:
       - ./backend:/app
       - /app/node_modules

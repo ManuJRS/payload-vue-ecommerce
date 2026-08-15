@@ -47,6 +47,8 @@ export default buildConfig({
       // Se utiliza DATABASE_URI o DATABASE_URL para asegurar compatibilidad
       connectionString: process.env.DATABASE_URI || process.env.DATABASE_URL || '',
     },
+    // Evita el prompt interactivo de Drizzle en Docker (bloquea /admin).
+    push: false,
   }),
   editor: lexicalEditor({
     features: () => {
