@@ -14,7 +14,9 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({
   tag,
   title,
 }) => {
-  const buttons = [primaryButton, secondaryButton].filter((button) => button?.label && button?.url)
+  const buttons = [primaryButton, secondaryButton].filter(
+    (button) => button?.label && (button?.url || button?.reference),
+  )
 
   return (
     <div className="">
@@ -27,12 +29,7 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({
           <ul className="flex gap-4">
             {buttons.map((button, i) => (
               <li key={i}>
-                <CMSLink
-                  type="custom"
-                  label={button?.label || ''}
-                  url={button?.url || ''}
-                  newTab={button?.newTab || false}
-                />
+                <CMSLink {...button} />
               </li>
             ))}
           </ul>

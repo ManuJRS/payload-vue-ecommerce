@@ -445,14 +445,34 @@ export interface Page {
     title?: string | null;
     description?: string | null;
     primaryButton?: {
-      label?: string | null;
-      url?: string | null;
+      type?: ('reference' | 'custom') | null;
       newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'products';
+            value: number | Product;
+          } | null);
+      url?: string | null;
+      label?: string | null;
     };
     secondaryButton?: {
-      label?: string | null;
-      url?: string | null;
+      type?: ('reference' | 'custom') | null;
       newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'products';
+            value: number | Product;
+          } | null);
+      url?: string | null;
+      label?: string | null;
     };
   };
   layout: (
@@ -1174,16 +1194,20 @@ export interface PagesSelect<T extends boolean = true> {
         primaryButton?:
           | T
           | {
-              label?: T;
-              url?: T;
+              type?: T;
               newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
             };
         secondaryButton?:
           | T
           | {
-              label?: T;
-              url?: T;
+              type?: T;
               newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
             };
       };
   layout?:
