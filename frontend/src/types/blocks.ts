@@ -33,27 +33,31 @@ export type PayloadBlock = {
   [key: string]: unknown
 }
 
+export type HeroLinkReference = {
+  relationTo?: 'pages' | 'products' | string
+  value?:
+    | number
+    | string
+    | {
+        id?: number | string
+        slug?: string | null
+        title?: string | null
+      }
+    | null
+}
+
 export type HeroButton = {
+  type?: ('reference' | 'custom') | null
   label?: string | null
   url?: string | null
   newTab?: boolean | null
+  reference?: HeroLinkReference | null
   link?: {
     type?: ('reference' | 'custom') | null
     newTab?: boolean | null
     url?: string | null
     label?: string | null
-    reference?: {
-      relationTo?: 'pages' | string
-      value?:
-        | number
-        | string
-        | {
-            id?: number | string
-            slug?: string | null
-            title?: string | null
-          }
-        | null
-    } | null
+    reference?: HeroLinkReference | null
   } | null
 }
 
