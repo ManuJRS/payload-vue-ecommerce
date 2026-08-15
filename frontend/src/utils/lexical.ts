@@ -14,9 +14,32 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;')
 
+const unwrapHtmlFormat = (text: string, format: number) => {
+  const wrapped = text.match(/^<(strong|b|em|i|u|s|strike|code)>([\s\S]*)<\/\1>$/i)
+  if (!wrapped) {
+    return { text, format }
+  }
+
+  const tag = wrapped[1].toLowerCase()
+  const bits: Record<string, number> = {
+    strong: FORMAT_BOLD,
+    b: FORMAT_BOLD,
+    em: FORMAT_ITALIC,
+    i: FORMAT_ITALIC,
+    u: FORMAT_UNDERLINE,
+    s: FORMAT_STRIKETHROUGH,
+    strike: FORMAT_STRIKETHROUGH,
+    code: FORMAT_CODE,
+  }
+
+  return { text: wrapped[2], format: format | (bits[tag] ?? 0) }
+}
+
 const renderText = (node: LexicalNode) => {
-  let html = escapeHtml(node.text ?? '')
-  const format = node.format ?? 0
+  const rawFormat = typeof node.format === 'number' ? node.format : 0
+  const unwrapped = unwrapHtmlFormat(node.text ?? '', rawFormat)
+  let html = escapeHtml(unwrapped.text)
+  const format = unwrapped.format
 
   if (format & FORMAT_CODE) html = `<code>${html}</code>`
   if (format & FORMAT_BOLD) html = `<strong>${html}</strong>`
