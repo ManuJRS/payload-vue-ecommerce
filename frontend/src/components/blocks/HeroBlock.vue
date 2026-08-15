@@ -63,24 +63,18 @@ const isMedium = computed(() => props.type === 'medium')
 const heroHeightClass = computed(() => (isMedium.value ? 'min-h-[50vh]' : 'min-h-svh'))
 
 const toNavLink = (button?: HeroButton | null): NavLink | null => {
-  if (button?.label && button.url) {
-    return {
-      type: 'custom',
-      newTab: button.newTab,
-      url: button.url,
-      label: button.label,
-    }
-  }
+  const source = button?.label ? button : button?.link
+  if (!source?.label) return null
 
-  const link = button?.link
-  if (!link?.label) return null
+  const hasTarget = Boolean(source.url) || Boolean(source.reference)
+  if (!hasTarget) return null
 
   return {
-    type: link.type ?? 'custom',
-    newTab: link.newTab,
-    url: link.url,
-    label: link.label,
-    reference: link.reference,
+    type: source.type ?? (source.reference ? 'reference' : 'custom'),
+    newTab: source.newTab,
+    url: source.url,
+    label: source.label,
+    reference: source.reference,
   }
 }
 
