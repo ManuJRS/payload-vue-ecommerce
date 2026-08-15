@@ -1,29 +1,41 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LexicalRichText, MediaRef, PageHero } from '@/types/blocks'
-import { lexicalToHtml, lexicalToPlainText } from '@/utils/lexical'
+import { RouterLink } from 'vue-router'
+import type { HeroButton, LexicalRichText, MediaRef, PageHero } from '@/types/blocks'
+import { lexicalToPlainText } from '@/utils/lexical'
 import { getMediaUrl } from '@/utils/media'
+import { isExternalHref, resolveNavHref, type NavLink } from '@/utils/nav'
 
 const props = withDefaults(
   defineProps<{
     heading?: string | null
     subheading?: string | null
+    tag?: string | null
     title?: string | null
+    description?: string | null
     type?: PageHero['type']
     richText?: LexicalRichText
     content?: LexicalRichText
     media?: number | MediaRef
+    primaryButton?: HeroButton | null
+    secondaryButton?: HeroButton | null
+    links?: Array<{ id?: string | null; link?: NavLink | null }> | null
     blockName?: string | null
     style?: string | null
   }>(),
   {
     heading: null,
     subheading: null,
+    tag: null,
     title: null,
+    description: null,
     type: 'lowImpact',
     richText: null,
     content: null,
     media: null,
+    primaryButton: null,
+    secondaryButton: null,
+    links: null,
     blockName: null,
     style: null,
   },
@@ -31,59 +43,136 @@ const props = withDefaults(
 
 const sourceRichText = computed(() => props.richText || props.content)
 
-const resolvedHeading = computed(
+const resolvedTag = computed(() => props.tag || null)
+
+const resolvedTitle = computed(
   () =>
-    props.heading ||
     props.title ||
+    props.heading ||
     props.blockName ||
     lexicalToPlainText(sourceRichText.value) ||
     'Bienvenido',
 )
 
-const resolvedSubheading = computed(() => {
-  if (props.subheading) return props.subheading
-  if (props.heading || props.title) return lexicalToPlainText(sourceRichText.value)
-  return 'Explora productos, colecciones y contenido administrado desde Payload CMS.'
-})
+const resolvedDescription = computed(
+  () => props.description || props.subheading || lexicalToPlainText(sourceRichText.value) || null,
+)
 
-const richTextHtml = computed(() => lexicalToHtml(sourceRichText.value))
 const mediaUrl = computed(() => getMediaUrl(props.media))
 const isMedium = computed(() => props.type === 'medium')
 const heroHeightClass = computed(() => (isMedium.value ? 'min-h-[50vh]' : 'min-h-svh'))
+
+const toNavLink = (button?: HeroButton | null): NavLink | null => {
+  if (button?.label && button.url) {
+    return {
+      type: 'custom',
+      newTab: button.newTab,
+      url: button.url,
+      label: button.label,
+    }
+  }
+
+  const link = button?.link
+  if (!link?.label) return null
+
+  return {
+    type: link.type ?? 'custom',
+    newTab: link.newTab,
+    url: link.url,
+    label: link.label,
+    reference: link.reference,
+  }
+}
+
+const buttons = computed(() => {
+  const fromFields = [toNavLink(props.primaryButton), toNavLink(props.secondaryButton)].filter(
+    (link): link is NavLink => Boolean(link),
+  )
+
+  if (fromFields.length > 0) return fromFields
+
+  return (props.links ?? [])
+    .map((item) => item.link)
+    .filter((link): link is NavLink => Boolean(link?.label))
+})
 </script>
 
 <template>
   <section
-    class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex w-screen overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-emerald-950 text-white"
+    class="relative flex w-full items-center overflow-hidden bg-slate-100"
     :class="heroHeightClass"
   >
     <div
       v-if="mediaUrl"
-      class="absolute inset-0"
+      class="absolute inset-0 z-0"
       aria-hidden="true"
     >
-      <img :src="mediaUrl" :alt="resolvedHeading" class="h-full w-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-indigo-950/70 to-emerald-900/40" />
+      <div
+        class="h-full w-full bg-cover bg-center bg-no-repeat opacity-60"
+        :style="{ backgroundImage: `url('${mediaUrl}')` }"
+        :data-alt="resolvedTitle"
+      />
     </div>
 
-    <div
-      class="relative z-10 mx-auto flex w-full max-w-6xl flex-col justify-end gap-4 px-6 py-16 sm:px-10 sm:py-24"
-      :class="heroHeightClass"
-    >
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
-        Payload Commerce
-      </p>
-      <h1 class="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-        {{ resolvedHeading }}
-      </h1>
-      <p class="max-w-2xl text-base text-slate-200 sm:text-lg">
-        {{ resolvedSubheading }}
-      </p>
-      <div
-        v-if="richTextHtml && (heading || title || blockName)"
-        class="prose-cms max-w-2xl text-slate-200 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_p]:text-slate-200"
-        v-html="richTextHtml"
-      />
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-16 sm:px-10 sm:py-24">
+      <div class="max-w-2xl rounded-xl border border-slate-200/60 bg-white/80 p-8 shadow-xl backdrop-blur-sm">
+        <span
+          v-if="resolvedTag"
+          class="mb-4 inline-block rounded-sm bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-800"
+        >
+          {{ resolvedTag }}
+        </span>
+
+        <h1 class="mb-6 text-4xl font-semibold leading-tight tracking-tight text-slate-900 md:text-[64px]">
+          {{ resolvedTitle }}
+        </h1>
+
+        <p
+          v-if="resolvedDescription"
+          class="mb-8 max-w-lg text-base leading-relaxed text-slate-600 sm:text-lg"
+        >
+          {{ resolvedDescription }}
+        </p>
+
+        <div
+          v-if="buttons.length > 0"
+          class="flex flex-col gap-4 sm:flex-row"
+        >
+          <template
+            v-for="(button, index) in buttons"
+            :key="`${button.label}-${index}`"
+          >
+            <a
+              v-if="isExternalHref(resolveNavHref(button))"
+              :href="resolveNavHref(button)"
+              class="inline-flex h-12 items-center justify-center rounded px-8 text-sm font-medium transition-colors duration-200"
+              :class="
+                index === 0
+                  ? 'bg-slate-900 text-white hover:bg-indigo-700'
+                  : 'border border-slate-300 text-slate-900 hover:bg-slate-100'
+              "
+              :target="button.newTab ? '_blank' : undefined"
+              :rel="button.newTab ? 'noopener noreferrer' : undefined"
+            >
+              {{ button.label }}
+            </a>
+            <RouterLink
+              v-else
+              :to="resolveNavHref(button)"
+              class="inline-flex h-12 items-center justify-center rounded px-8 text-sm font-medium transition-colors duration-200"
+              :class="
+                index === 0
+                  ? 'bg-slate-900 text-white hover:bg-indigo-700'
+                  : 'border border-slate-300 text-slate-900 hover:bg-slate-100'
+              "
+              :target="button.newTab ? '_blank' : undefined"
+              :rel="button.newTab ? 'noopener noreferrer' : undefined"
+            >
+              {{ button.label }}
+            </RouterLink>
+          </template>
+        </div>
+      </div>
     </div>
   </section>
 </template>
