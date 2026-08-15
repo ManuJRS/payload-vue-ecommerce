@@ -6,21 +6,35 @@ import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import { RichText } from '@/components/RichText'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const MediumImpactHero: React.FC<Page['hero']> = ({
+  description,
+  media,
+  primaryButton,
+  secondaryButton,
+  tag,
+  title,
+}) => {
+  const buttons = [primaryButton, secondaryButton].filter((button) => button?.label && button?.url)
+
   return (
     <div className="">
       <div className="container mb-8">
-        {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
+        {tag && <p className="mb-2 text-sm uppercase tracking-widest">{tag}</p>}
+        {title && <h1 className="mb-4 text-4xl font-semibold">{title}</h1>}
+        {description && <p className="mb-6">{description}</p>}
 
-        {Array.isArray(links) && links.length > 0 && (
+        {buttons.length > 0 && (
           <ul className="flex gap-4">
-            {links.map(({ link }, i) => {
-              return (
-                <li key={i}>
-                  <CMSLink {...link} />
-                </li>
-              )
-            })}
+            {buttons.map((button, i) => (
+              <li key={i}>
+                <CMSLink
+                  type="custom"
+                  label={button?.label || ''}
+                  url={button?.url || ''}
+                  newTab={button?.newTab || false}
+                />
+              </li>
+            ))}
           </ul>
         )}
       </div>

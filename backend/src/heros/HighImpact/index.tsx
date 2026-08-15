@@ -6,14 +6,22 @@ import type { Page } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
-import { RichText } from '@/components/RichText'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const HighImpactHero: React.FC<Page['hero']> = ({
+  description,
+  media,
+  primaryButton,
+  secondaryButton,
+  tag,
+  title,
+}) => {
   const { setHeaderTheme } = useHeaderTheme()
 
   useEffect(() => {
     setHeaderTheme('dark')
   })
+
+  const buttons = [primaryButton, secondaryButton].filter((button) => button?.label && button?.url)
 
   return (
     <div
@@ -22,16 +30,21 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText 
     >
       <div className="container mb-8 z-10 relative flex items-center justify-center">
         <div className="max-w-146 md:text-center">
-          {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
-          {Array.isArray(links) && links.length > 0 && (
+          {tag && <p className="mb-2 text-sm uppercase tracking-widest">{tag}</p>}
+          {title && <h1 className="mb-4 text-4xl font-semibold">{title}</h1>}
+          {description && <p className="mb-6">{description}</p>}
+          {buttons.length > 0 && (
             <ul className="flex md:justify-center gap-4">
-              {links.map(({ link }, i) => {
-                return (
-                  <li key={i}>
-                    <CMSLink {...link} />
-                  </li>
-                )
-              })}
+              {buttons.map((button, i) => (
+                <li key={i}>
+                <CMSLink
+                  type="custom"
+                  label={button?.label || ''}
+                  url={button?.url || ''}
+                  newTab={button?.newTab || false}
+                />
+                </li>
+              ))}
             </ul>
           )}
         </div>
