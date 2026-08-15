@@ -2,19 +2,72 @@ import type { Field } from 'payload'
 
 const heroButtonFields: Field[] = [
   {
-    name: 'label',
-    type: 'text',
-    label: 'Texto',
+    type: 'row',
+    fields: [
+      {
+        name: 'type',
+        type: 'radio',
+        admin: {
+          layout: 'horizontal',
+          width: '50%',
+        },
+        defaultValue: 'custom',
+        options: [
+          {
+            label: 'Enlace interno',
+            value: 'reference',
+          },
+          {
+            label: 'URL personalizada',
+            value: 'custom',
+          },
+        ],
+      },
+      {
+        name: 'newTab',
+        type: 'checkbox',
+        admin: {
+          style: {
+            alignSelf: 'flex-end',
+          },
+          width: '50%',
+        },
+        label: 'Abrir en nueva pestaña',
+      },
+    ],
   },
   {
-    name: 'url',
-    type: 'text',
-    label: 'Enlace',
-  },
-  {
-    name: 'newTab',
-    type: 'checkbox',
-    label: 'Abrir en nueva pestaña',
+    type: 'row',
+    fields: [
+      {
+        name: 'reference',
+        type: 'relationship',
+        admin: {
+          condition: (_, siblingData) => siblingData?.type === 'reference',
+          width: '50%',
+        },
+        label: 'Página o producto',
+        maxDepth: 1,
+        relationTo: ['pages', 'products'],
+      },
+      {
+        name: 'url',
+        type: 'text',
+        admin: {
+          condition: (_, siblingData) => siblingData?.type === 'custom',
+          width: '50%',
+        },
+        label: 'URL',
+      },
+      {
+        name: 'label',
+        type: 'text',
+        admin: {
+          width: '50%',
+        },
+        label: 'Texto',
+      },
+    ],
   },
 ]
 

@@ -4,7 +4,7 @@ export type NavLink = {
   url?: string | null
   label: string
   reference?: {
-    relationTo?: 'pages' | string
+    relationTo?: 'pages' | 'products' | string
     value?:
       | number
       | string
@@ -41,6 +41,8 @@ export const resolveNavHref = (link?: NavLink | null) => {
 
   const value = link.reference?.value
   if (value && typeof value === 'object' && value.slug) {
+    const relationTo = link.reference?.relationTo
+    if (relationTo === 'products') return `/productos/${value.slug}`
     return value.slug === 'home' ? '/' : normalizePath(value.slug)
   }
 

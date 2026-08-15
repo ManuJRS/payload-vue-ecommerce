@@ -21,7 +21,9 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
     setHeaderTheme('dark')
   })
 
-  const buttons = [primaryButton, secondaryButton].filter((button) => button?.label && button?.url)
+  const buttons = [primaryButton, secondaryButton].filter(
+    (button) => button?.label && (button?.url || button?.reference),
+  )
 
   return (
     <div
@@ -37,12 +39,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({
             <ul className="flex md:justify-center gap-4">
               {buttons.map((button, i) => (
                 <li key={i}>
-                <CMSLink
-                  type="custom"
-                  label={button?.label || ''}
-                  url={button?.url || ''}
-                  newTab={button?.newTab || false}
-                />
+                  <CMSLink {...button} />
                 </li>
               ))}
             </ul>
