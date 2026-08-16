@@ -177,7 +177,46 @@ export const homePageData: (args: ProductArgs) => RequiredDataFromCollectionSlug
       {
         blockName: 'Media Block',
         blockType: 'mediaBlock',
+        tag: 'The Studio',
+        title: 'Designed for modern commerce',
+        description: {
+          root: {
+            type: 'root',
+            children: [
+              {
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: 'Every layout begins with a commitment to clarity over clutter. Pair imagery with concise copy to tell a product story.',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                textFormat: 0,
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          },
+        },
+        button: {
+          type: 'custom',
+          label: 'Read Our Story',
+          url: '/about',
+          newTab: false,
+        },
         media: contentImage,
+        imagePosition: 'left',
       },
       {
         blockName: 'CTA',
