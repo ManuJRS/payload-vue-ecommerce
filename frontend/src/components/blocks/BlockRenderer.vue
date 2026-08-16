@@ -5,6 +5,7 @@ import type { PayloadBlock } from '@/types/blocks'
 import ContentBlock from './ContentBlock.vue'
 import FeaturedProductsBlock from './FeaturedProductsBlock.vue'
 import HeroBlock from './HeroBlock.vue'
+import MediaBlock from './MediaBlock.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -20,6 +21,7 @@ const blockMap: Record<string, Component> = {
   banner: HeroBlock,
   content: ContentBlock,
   contentBlock: ContentBlock,
+  mediaBlock: MediaBlock,
   archive: FeaturedProductsBlock,
   carousel: FeaturedProductsBlock,
   threeItemGrid: FeaturedProductsBlock,
