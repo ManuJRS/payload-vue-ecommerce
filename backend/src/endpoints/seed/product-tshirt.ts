@@ -34,7 +34,46 @@ export const productTshirtData: (
     layout: [
       {
         blockType: 'mediaBlock',
+        tag: 'Details',
+        title: 'Crafted for everyday wear',
+        description: {
+          root: {
+            type: 'root',
+            children: [
+              {
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: 'Soft cotton construction with a clean silhouette designed for comfort and longevity.',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                textFormat: 0,
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          },
+        },
+        button: {
+          type: 'custom',
+          label: 'Shop collection',
+          url: '/shop',
+          newTab: false,
+        },
         media: contentImage,
+        imagePosition: 'left',
       },
       {
         blockType: 'content',
