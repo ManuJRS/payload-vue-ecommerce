@@ -624,6 +624,8 @@ export interface Category {
  * via the `definition` "CarouselBlock".
  */
 export interface CarouselBlock {
+  title?: string | null;
+  description?: string | null;
   populateBy?: ('collection' | 'selection') | null;
   relationTo?: 'products' | null;
   categories?: (number | Category)[] | null;
@@ -1323,6 +1325,8 @@ export interface ArchiveBlockSelect<T extends boolean = true> {
  * via the `definition` "CarouselBlock_select".
  */
 export interface CarouselBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
   populateBy?: T;
   relationTo?: T;
   categories?: T;
