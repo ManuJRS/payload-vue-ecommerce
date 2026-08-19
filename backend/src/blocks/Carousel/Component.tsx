@@ -11,7 +11,7 @@ export const CarouselBlock: React.FC<
     id?: DefaultDocumentIDType
   }
 > = async (props) => {
-  const { id, categories, limit = 3, populateBy, selectedDocs } = props
+  const { id, categories, description, limit = 3, populateBy, selectedDocs, title } = props
 
   let products: Product[] = []
 
@@ -50,7 +50,13 @@ export const CarouselBlock: React.FC<
   if (!products?.length) return null
 
   return (
-    <div className=" w-full pb-6 pt-1">
+    <div className="w-full pb-6 pt-1">
+      {(title || description) && (
+        <div className="container mb-8">
+          {title && <h2 className="text-3xl font-semibold tracking-tight">{title}</h2>}
+          {description && <p className="mt-2 text-muted-foreground">{description}</p>}
+        </div>
+      )}
       <CarouselClient products={products} />
     </div>
   )

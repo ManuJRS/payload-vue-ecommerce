@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { Component } from 'vue'
 import type { PayloadBlock } from '@/types/blocks'
+import CarouselBlock from './CarouselBlock.vue'
 import ContentBlock from './ContentBlock.vue'
 import FeaturedProductsBlock from './FeaturedProductsBlock.vue'
 import HeroBlock from './HeroBlock.vue'
@@ -23,7 +24,7 @@ const blockMap: Record<string, Component> = {
   contentBlock: ContentBlock,
   mediaBlock: MediaBlock,
   archive: FeaturedProductsBlock,
-  carousel: FeaturedProductsBlock,
+  carousel: CarouselBlock,
   threeItemGrid: FeaturedProductsBlock,
   featuredProducts: FeaturedProductsBlock,
 }
