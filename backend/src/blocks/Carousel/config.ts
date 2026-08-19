@@ -4,6 +4,16 @@ export const Carousel: Block = {
   slug: 'carousel',
   fields: [
     {
+      name: 'title',
+      type: 'text',
+      label: 'Title',
+    },
+    {
+      name: 'description',
+      type: 'text',
+      label: 'Description',
+    },
+    {
       name: 'populateBy',
       type: 'select',
       defaultValue: 'collection',

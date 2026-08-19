@@ -1,4 +1,4 @@
-import type { PageHero, PayloadBlock } from '@/types/blocks'
+import type { MediaRef, PageHero, PayloadBlock } from '@/types/blocks'
 import type { NavItem } from '@/utils/nav'
 import api from './api'
 
@@ -22,14 +22,28 @@ export type PayloadListResponse<T> = {
   nextPage?: number | null
 }
 
+export type ProductGalleryItem = {
+  image?: number | MediaRef
+  variantOption?: unknown
+  id?: string | null
+}
+
+export type ProductCategory = {
+  id: number | string
+  title?: string | null
+  slug?: string | null
+}
+
 export type Product = PayloadDoc & {
   title: string
   slug?: string | null
   description?: unknown
-  gallery?: unknown
+  gallery?: ProductGalleryItem[] | null
+  categories?: Array<number | ProductCategory> | null
   priceInUSD?: number | null
   inventory?: number | null
   enableVariants?: boolean | null
+  createdAt?: string | null
   meta?: unknown
   _status?: 'draft' | 'published' | null
 }
@@ -56,16 +70,38 @@ const publishedOnly = {
   'where[_status][equals]': 'published',
 } as const
 
+export type ProductListParams = {
+  limit?: number
+  ids?: Array<number | string>
+  categoryIds?: Array<number | string>
+  sort?: string
+}
+
+const toWhereParams = (params: ProductListParams) => {
+  const query: Record<string, string | number | boolean> = {}
+
+  params.ids?.forEach((id, index) => {
+    query[`where[id][in][${index}]`] = id
+  })
+
+  params.categoryIds?.forEach((id, index) => {
+    query[`where[or][${index}][categories][contains]`] = id
+  })
+
+  return query
+}
+
 export const payloadService = {
   /** Catálogo de productos publicados. */
-  async getProducts(params: Record<string, string | number | boolean> = {}) {
+  async getProducts(params: ProductListParams = {}) {
+    const { ids, categoryIds, ...rest } = params
     const { data } = await api.get<PayloadListResponse<Product>>('/api/products', {
       params: {
         depth: 2,
-        limit: 100,
-        sort: '-createdAt',
+        limit: rest.limit ?? 100,
+        sort: rest.sort ?? '-createdAt',
         ...publishedOnly,
-        ...params,
+        ...toWhereParams({ ids, categoryIds }),
       },
     })
 
