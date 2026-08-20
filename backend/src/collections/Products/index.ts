@@ -20,6 +20,20 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { DefaultDocumentIDType, Where } from 'payload'
 
+import { normalizeLexicalInlineFormats } from '@/utilities/normalizeLexicalInlineFormats'
+
+const productRichTextEditor = lexicalEditor({
+  features: ({ rootFeatures }) => [
+    ...rootFeatures,
+    FixedToolbarFeature(),
+    InlineToolbarFeature(),
+  ],
+})
+
+const productRichTextHooks = {
+  beforeChange: [({ value }: { value: unknown }) => normalizeLexicalInlineFormats(value)],
+}
+
 export const ProductsCollection: CollectionOverride = ({ defaultCollection }) => ({
   ...defaultCollection,
   admin: {
@@ -45,6 +59,8 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
     ...defaultCollection?.defaultPopulate,
     title: true,
     slug: true,
+    shortDescription: true,
+    description: true,
     variantOptions: true,
     variants: true,
     enableVariants: true,
@@ -61,8 +77,16 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
         {
           fields: [
             {
+              name: 'shortDescription',
+              type: 'richText',
+              label: 'Descripción corta',
+              editor: productRichTextEditor,
+              hooks: productRichTextHooks,
+            },
+            {
               name: 'description',
               type: 'richText',
+              label: 'Descripción larga',
               editor: lexicalEditor({
                 features: ({ rootFeatures }) => {
                   return [
@@ -74,7 +98,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
                   ]
                 },
               }),
-              label: false,
+              hooks: productRichTextHooks,
               required: false,
             },
             {
