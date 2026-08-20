@@ -2,12 +2,14 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCarouselProducts, type CarouselProductSource } from '@/composables/useCarouselProducts'
+import RichText from '@/components/RichText.vue'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/services/payloadService'
 import {
   formatProductPrice,
-  getProductCategoryLabel,
   getProductImageUrl,
+  getProductShortDescription,
+  hasProductShortDescription,
   isNewProduct,
   type ProductRef,
 } from '@/utils/product'
@@ -171,8 +173,11 @@ const addProduct = (product: Product) => {
             >
               {{ product.title }}
             </RouterLink>
-            <p class="mb-4 text-base text-slate-500">
-              {{ getProductCategoryLabel(product) || product.slug || 'Producto' }}
+            <p
+              v-if="hasProductShortDescription(product)"
+              class="prose-cms mb-4 line-clamp-3 text-base text-slate-500 [&_p:last-child]:mb-0"
+            >
+              <RichText :data="getProductShortDescription(product)" />
             </p>
             <div class="flex items-center justify-between">
               <span class="text-base font-semibold text-slate-900">
