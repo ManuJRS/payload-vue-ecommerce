@@ -1,4 +1,5 @@
-import type { MediaRef } from '@/types/blocks'
+import type { LexicalRichText, MediaRef } from '@/types/blocks'
+import { lexicalToPlainText } from '@/utils/lexical'
 import { getMediaUrl } from '@/utils/media'
 import type { Product, ProductCategory } from '@/services/payloadService'
 
@@ -51,6 +52,12 @@ export const getProductCategoryLabel = (product?: Product | null) => {
 
   return first?.title || null
 }
+
+export const getProductShortDescription = (product?: Product | null): LexicalRichText =>
+  product?.shortDescription ?? null
+
+export const hasProductShortDescription = (product?: Product | null) =>
+  Boolean(lexicalToPlainText(getProductShortDescription(product)))
 
 export const formatProductPrice = (priceInUSD?: number | null) => {
   if (typeof priceInUSD !== 'number') return 'Consultar'

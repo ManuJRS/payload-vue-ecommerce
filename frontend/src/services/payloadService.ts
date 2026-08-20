@@ -1,4 +1,4 @@
-import type { MediaRef, PageHero, PayloadBlock } from '@/types/blocks'
+import type { MediaRef, PageHero, PayloadBlock, LexicalRichText } from '@/types/blocks'
 import type { NavItem } from '@/utils/nav'
 import api from './api'
 
@@ -37,7 +37,8 @@ export type ProductCategory = {
 export type Product = PayloadDoc & {
   title: string
   slug?: string | null
-  description?: unknown
+  shortDescription?: LexicalRichText
+  description?: LexicalRichText
   gallery?: ProductGalleryItem[] | null
   categories?: Array<number | ProductCategory> | null
   priceInUSD?: number | null
