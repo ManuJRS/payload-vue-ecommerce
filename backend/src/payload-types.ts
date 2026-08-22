@@ -496,6 +496,7 @@ export interface Page {
     | MediaBlock
     | ArchiveBlock
     | CarouselBlock
+    | ThreeCardGridBlock
     | ThreeItemGridBlock
     | BannerBlock
     | FormBlock
@@ -667,6 +668,27 @@ export interface CarouselBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'carousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ThreeCardGridBlock".
+ */
+export interface ThreeCardGridBlock {
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        description: string;
+        /**
+         * Sube un archivo SVG desde Media.
+         */
+        svg?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'threeCardGrid';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1248,6 +1270,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
+        threeCardGrid?: T | ThreeCardGridBlockSelect<T>;
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
@@ -1349,6 +1372,23 @@ export interface CarouselBlockSelect<T extends boolean = true> {
   selectedDocs?: T;
   populatedDocs?: T;
   populatedDocsTotal?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ThreeCardGridBlock_select".
+ */
+export interface ThreeCardGridBlockSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        svg?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
