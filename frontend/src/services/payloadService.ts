@@ -34,6 +34,12 @@ export type ProductCategory = {
   slug?: string | null
 }
 
+export type Category = PayloadDoc & {
+  title: string
+  slug?: string | null
+  image?: number | MediaRef | null
+}
+
 export type Product = PayloadDoc & {
   title: string
   slug?: string | null
@@ -92,6 +98,20 @@ const toWhereParams = (params: ProductListParams) => {
   return query
 }
 
+export type CategoryListParams = {
+  limit?: number
+  ids?: Array<number | string>
+  sort?: string
+}
+
+const toCategoryWhereParams = (params: CategoryListParams) => {
+  const query: Record<string, string | number | boolean> = {}
+  params.ids?.forEach((id, index) => {
+    query[`where[id][in][${index}]`] = id
+  })
+  return query
+}
+
 export const payloadService = {
   /** Catálogo de productos publicados. */
   async getProducts(params: ProductListParams = {}) {
@@ -103,6 +123,21 @@ export const payloadService = {
         sort: rest.sort ?? '-createdAt',
         ...publishedOnly,
         ...toWhereParams({ ids, categoryIds }),
+      },
+    })
+
+    return data
+  },
+
+  /** Listado de categorías. */
+  async getCategories(params: CategoryListParams = {}) {
+    const { ids, ...rest } = params
+    const { data } = await api.get<PayloadListResponse<Category>>('/api/categories', {
+      params: {
+        depth: 1,
+        limit: rest.limit ?? 100,
+        sort: rest.sort ?? 'title',
+        ...toCategoryWhereParams({ ids }),
       },
     })
 
