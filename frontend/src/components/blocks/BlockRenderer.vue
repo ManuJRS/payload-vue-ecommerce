@@ -7,6 +7,7 @@ import ContentBlock from './ContentBlock.vue'
 import FeaturedProductsBlock from './FeaturedProductsBlock.vue'
 import HeroBlock from './HeroBlock.vue'
 import MediaBlock from './MediaBlock.vue'
+import ThreeCardGridBlock from './ThreeCardGridBlock.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -25,6 +26,7 @@ const blockMap: Record<string, Component> = {
   mediaBlock: MediaBlock,
   archive: FeaturedProductsBlock,
   carousel: CarouselBlock,
+  threeCardGrid: ThreeCardGridBlock,
   threeItemGrid: FeaturedProductsBlock,
   featuredProducts: FeaturedProductsBlock,
 }
