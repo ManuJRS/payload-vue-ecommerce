@@ -21,6 +21,12 @@ export const Categories: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'image',
+      type: 'upload',
+      label: 'Imagen',
+      relationTo: 'media',
+    },
     slugField({
       position: undefined,
     }),
