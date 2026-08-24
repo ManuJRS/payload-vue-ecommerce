@@ -8,6 +8,7 @@ import FeaturedProductsBlock from './FeaturedProductsBlock.vue'
 import HeroBlock from './HeroBlock.vue'
 import MediaBlock from './MediaBlock.vue'
 import ArchiveBlock from './ArchiveBlock.vue'
+import BannerBlock from './BannerBlock.vue'
 import ThreeCardGridBlock from './ThreeCardGridBlock.vue'
 
 const props = withDefaults(
@@ -21,7 +22,7 @@ const props = withDefaults(
 
 const blockMap: Record<string, Component> = {
   hero: HeroBlock,
-  banner: HeroBlock,
+  banner: BannerBlock,
   content: ContentBlock,
   contentBlock: ContentBlock,
   mediaBlock: MediaBlock,
