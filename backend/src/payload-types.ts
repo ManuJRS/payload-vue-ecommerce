@@ -492,6 +492,7 @@ export interface Page {
   };
   layout: (
     | CallToActionBlock
+    | CtaBlock
     | ContentBlock
     | MediaBlock
     | ArchiveBlock
@@ -517,6 +518,32 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock".
+ */
+export interface CtaBlock {
+  title: string;
+  description?: string | null;
+  button?: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'products';
+          value: number | Product;
+        } | null);
+    url?: string | null;
+    label?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ctaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1260,6 +1287,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         cta?: T | CallToActionBlockSelect<T>;
+        ctaBlock?: T | CtaBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
@@ -1302,6 +1330,25 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
               appearance?: T;
             };
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock_select".
+ */
+export interface CtaBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  button?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
       };
   id?: T;
   blockName?: T;

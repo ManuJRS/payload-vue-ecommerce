@@ -9,6 +9,7 @@ import { adminOnly } from '@/access/adminOnly'
 import { Archive } from '@/blocks/ArchiveBlock/config'
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
+import { CtaBlock } from '@/blocks/CtaBlock/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { hero } from '@/fields/hero'
@@ -90,6 +91,7 @@ export const Pages: CollectionConfig = {
               type: 'blocks',
               blocks: [
                 CallToAction,
+                CtaBlock,
                 Content,
                 MediaBlock,
                 Archive,
