@@ -3,6 +3,7 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { CarouselBlock } from '@/blocks/Carousel/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
+import { CtaBlockComponent } from '@/blocks/CtaBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { ThreeCardGridBlock } from '@/blocks/ThreeCardGrid/Component'
@@ -18,6 +19,7 @@ const blockComponents = {
   carousel: CarouselBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
+  ctaBlock: CtaBlockComponent,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
   threeCardGrid: ThreeCardGridBlock,
