@@ -1,5 +1,6 @@
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
+import { FeaturedProducts } from '@/blocks/FeaturedProducts/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from 'payload'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
@@ -159,7 +160,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock],
+              blocks: [CallToAction, Content, MediaBlock, FeaturedProducts],
             },
           ],
           label: 'Content',
