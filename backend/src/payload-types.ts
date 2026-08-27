@@ -303,7 +303,7 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
-  layout?: (CallToActionBlock | ContentBlock | MediaBlock)[] | null;
+  layout?: (CallToActionBlock | ContentBlock | MediaBlock | FeaturedProductsBlock)[] | null;
   inventory?: number | null;
   enableVariants?: boolean | null;
   variantTypes?: (number | VariantType)[] | null;
@@ -936,6 +936,17 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedProductsBlock".
+ */
+export interface FeaturedProductsBlock {
+  title?: string | null;
+  products?: (number | Product)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featuredProducts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1734,6 +1745,7 @@ export interface ProductsSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        featuredProducts?: T | FeaturedProductsBlockSelect<T>;
       };
   inventory?: T;
   enableVariants?: T;
@@ -1756,6 +1768,16 @@ export interface ProductsSelect<T extends boolean = true> {
   createdAt?: T;
   deletedAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedProductsBlock_select".
+ */
+export interface FeaturedProductsBlockSelect<T extends boolean = true> {
+  title?: T;
+  products?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

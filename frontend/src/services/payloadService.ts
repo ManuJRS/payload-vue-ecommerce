@@ -46,6 +46,7 @@ export type Product = PayloadDoc & {
   shortDescription?: LexicalRichText
   description?: LexicalRichText
   gallery?: ProductGalleryItem[] | null
+  layout?: PayloadBlock[] | null
   categories?: Array<number | ProductCategory> | null
   priceInUSD?: number | null
   inventory?: number | null

@@ -2,9 +2,10 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import RichText from '@/components/RichText.vue'
+import ProductFeaturedProducts from '@/components/product/ProductFeaturedProducts.vue'
 import { useCartStore } from '@/stores/cart'
 import { payloadService, type Product } from '@/services/payloadService'
-import type { LexicalRichText, MediaRef } from '@/types/blocks'
+import type { LexicalRichText, MediaRef, PayloadBlock } from '@/types/blocks'
 import {
   formatProductPrice,
   getProductCategoryLabel,
@@ -68,6 +69,13 @@ const formattedPrice = computed(() => formatProductPrice(product.value?.priceInU
 const categoryLabel = computed(() => getProductCategoryLabel(product.value))
 
 const showNewBadge = computed(() => isNewProduct(product.value))
+
+const featuredProductBlocks = computed(() =>
+  (product.value?.layout ?? []).filter(
+    (block): block is PayloadBlock & { blockType: 'featuredProducts'; products?: Product[] } =>
+      block?.blockType === 'featuredProducts',
+  ),
+)
 
 const loadProduct = async () => {
   if (!slug.value) {
@@ -352,5 +360,13 @@ watch(slug, loadProduct)
         </div>
       </div>
     </article>
+
+    <ProductFeaturedProducts
+      v-for="(block, index) in featuredProductBlocks"
+      :key="block.id || `featured-products-${index}`"
+      :title="block.title"
+      :block-name="block.blockName"
+      :products="block.products"
+    />
   </div>
 </template>
