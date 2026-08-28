@@ -80,6 +80,7 @@ const publishedOnly = {
 
 export type ProductListParams = {
   limit?: number
+  page?: number
   ids?: Array<number | string>
   categoryIds?: Array<number | string>
   sort?: string
@@ -121,6 +122,7 @@ export const payloadService = {
       params: {
         depth: 2,
         limit: rest.limit ?? 100,
+        page: rest.page ?? 1,
         sort: rest.sort ?? '-createdAt',
         ...publishedOnly,
         ...toWhereParams({ ids, categoryIds }),
