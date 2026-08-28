@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import DynamicPageView from '@/views/DynamicPageView.vue'
 import HomeView from '@/views/HomeView.vue'
 import ProductDetailView from '@/views/ProductDetailView.vue'
+import ShopView from '@/views/ShopView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,6 +11,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/tienda',
+      name: 'shop',
+      component: ShopView,
     },
     {
       path: '/productos/:slug',
