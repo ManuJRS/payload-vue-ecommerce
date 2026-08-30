@@ -149,6 +149,12 @@ onUnmounted(() => {
                       >
                         {{ item.title }}
                       </p>
+                      <p
+                        v-if="item.variantLabel"
+                        class="text-xs text-slate-500"
+                      >
+                        {{ item.variantLabel }}
+                      </p>
                       <p class="text-sm text-indigo-700">
                         {{ formatPrice(item.price) }}
                       </p>

@@ -6,6 +6,8 @@ export type CartItem = {
   /** Identificador de línea en el carrito (producto o producto+variante). */
   id: string
   productId: Product['id']
+  variantId?: Product['id'] | string | null
+  variantLabel?: string | null
   title: string
   slug?: string | null
   price: number
@@ -14,10 +16,13 @@ export type CartItem = {
 }
 
 type AddToCartProduct = Pick<Product, 'id' | 'title' | 'slug' | 'priceInUSD'> & {
+  variantId?: Product['id'] | string | null
+  variantLabel?: string | null
   imageUrl?: string | null
 }
 
-const getLineId = (productId: Product['id']) => String(productId)
+const getLineId = (productId: Product['id'], variantId?: Product['id'] | string | null) =>
+  variantId ? `${productId}-${variantId}` : String(productId)
 
 export const useCartStore = defineStore(
   'cart',
@@ -35,7 +40,7 @@ export const useCartStore = defineStore(
     const addToCart = (product: AddToCartProduct, quantity = 1) => {
       if (quantity <= 0) return
 
-      const lineId = getLineId(product.id)
+      const lineId = getLineId(product.id, product.variantId)
       const existing = items.value.find((item) => item.id === lineId)
 
       if (existing) {
@@ -46,6 +51,8 @@ export const useCartStore = defineStore(
       items.value.push({
         id: lineId,
         productId: product.id,
+        variantId: product.variantId ?? null,
+        variantLabel: product.variantLabel ?? null,
         title: product.title,
         slug: product.slug ?? null,
         price: product.priceInUSD ?? 0,

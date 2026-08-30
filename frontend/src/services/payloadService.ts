@@ -1,4 +1,5 @@
 import type { MediaRef, PageHero, PayloadBlock, LexicalRichText } from '@/types/blocks'
+import type { ProductVariantsField, ProductVariant } from '@/types/variants'
 import type { NavItem } from '@/utils/nav'
 import api from './api'
 
@@ -40,21 +41,24 @@ export type Category = PayloadDoc & {
   image?: number | MediaRef | null
 }
 
-export type Product = PayloadDoc & {
-  title: string
-  slug?: string | null
-  shortDescription?: LexicalRichText
-  description?: LexicalRichText
-  gallery?: ProductGalleryItem[] | null
-  layout?: PayloadBlock[] | null
-  categories?: Array<number | ProductCategory> | null
-  priceInUSD?: number | null
-  inventory?: number | null
-  enableVariants?: boolean | null
-  createdAt?: string | null
-  meta?: unknown
-  _status?: 'draft' | 'published' | null
-}
+export type Product = PayloadDoc &
+  ProductVariantsField & {
+    title: string
+    slug?: string | null
+    shortDescription?: LexicalRichText
+    description?: LexicalRichText
+    gallery?: ProductGalleryItem[] | null
+    layout?: PayloadBlock[] | null
+    categories?: Array<number | ProductCategory> | null
+    priceInUSD?: number | null
+    inventory?: number | null
+    enableVariants?: boolean | null
+    createdAt?: string | null
+    meta?: unknown
+    _status?: 'draft' | 'published' | null
+  }
+
+export type { ProductVariant }
 
 export type Page = PayloadDoc & {
   title: string
