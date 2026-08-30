@@ -1,3 +1,5 @@
+import type { LexicalRichText, MediaRef } from '@/types/blocks'
+
 export type VariantOption = {
   id: number | string
   label: string
@@ -15,6 +17,9 @@ export type ProductVariant = {
   id: number | string
   title?: string | null
   options?: Array<number | string | VariantOption> | null
+  shortDescription?: LexicalRichText
+  description?: LexicalRichText
+  image?: number | MediaRef | null
   inventory?: number | null
   priceInUSD?: number | null
   priceInUSDEnabled?: boolean | null

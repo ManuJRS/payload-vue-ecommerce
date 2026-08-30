@@ -9,6 +9,11 @@ import {
   productHasVariants,
   variantHasStock,
 } from '@/utils/variants'
+import {
+  resolveVariantDescription,
+  resolveVariantGallery,
+  resolveVariantShortDescription,
+} from '@/utils/variantContent'
 
 export const useProductVariants = (product: MaybeRefOrGetter<Product | null>) => {
   const selectedOptions = ref<Record<string, number | string>>({})
@@ -33,6 +38,18 @@ export const useProductVariants = (product: MaybeRefOrGetter<Product | null>) =>
     }
     return currentProduct.value?.priceInUSD ?? null
   })
+
+  const activeShortDescription = computed(() =>
+    resolveVariantShortDescription(selectedVariant.value, currentProduct.value),
+  )
+
+  const activeDescription = computed(() =>
+    resolveVariantDescription(selectedVariant.value, currentProduct.value),
+  )
+
+  const activeGallery = computed(() =>
+    resolveVariantGallery(selectedVariant.value, currentProduct.value),
+  )
 
   const canAddToCart = computed(() => {
     if (!currentProduct.value) return false
@@ -75,6 +92,9 @@ export const useProductVariants = (product: MaybeRefOrGetter<Product | null>) =>
     selectedVariant,
     selectedVariantLabel,
     activePrice,
+    activeShortDescription,
+    activeDescription,
+    activeGallery,
     canAddToCart,
     selectOption,
     isOptionSelected,
