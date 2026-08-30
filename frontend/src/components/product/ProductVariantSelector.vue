@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { VariantTypeGroup } from '@/types/variants'
 import { getOptionSwatchColor, isColorVariantType } from '@/utils/variants'
 
