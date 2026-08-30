@@ -963,6 +963,46 @@ export interface Variant {
   inventory?: number | null;
   priceInUSDEnabled?: boolean | null;
   priceInUSD?: number | null;
+  /**
+   * Opcional. Si se deja vacío, se usará la descripción corta del producto base.
+   */
+  shortDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Opcional. Si se deja vacío, se usará la descripción larga del producto base.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Opcional. Si no se sube imagen, se usará la galería del producto base.
+   */
+  image?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1694,6 +1734,9 @@ export interface VariantsSelect<T extends boolean = true> {
   inventory?: T;
   priceInUSDEnabled?: T;
   priceInUSD?: T;
+  shortDescription?: T;
+  description?: T;
+  image?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

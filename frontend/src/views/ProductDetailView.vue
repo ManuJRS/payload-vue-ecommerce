@@ -7,16 +7,13 @@ import ProductVariantSelector from '@/components/product/ProductVariantSelector.
 import { useProductVariants } from '@/composables/useProductVariants'
 import { useCartStore } from '@/stores/cart'
 import { payloadService, type Product } from '@/services/payloadService'
-import type { LexicalRichText, MediaRef, PayloadBlock } from '@/types/blocks'
-import type { VariantOption } from '@/types/variants'
+import type { LexicalRichText, PayloadBlock } from '@/types/blocks'
 import {
   formatProductPrice,
   getProductCategoryLabel,
-  hasProductShortDescription,
   isNewProduct,
 } from '@/utils/product'
 import { lexicalToPlainText } from '@/utils/lexical'
-import { getMediaUrl } from '@/utils/media'
 
 const route = useRoute()
 const cart = useCartStore()
@@ -30,41 +27,30 @@ const openSection = ref<'details' | 'shipping' | null>('details')
 
 const slug = computed(() => String(route.params.slug || ''))
 
-type GalleryItem = {
-  url: string
-  alt?: string
-}
+const {
+  hasVariants,
+  variantTypeGroups,
+  selectedVariant,
+  selectedVariantLabel,
+  activePrice,
+  activeShortDescription,
+  activeDescription,
+  activeGallery,
+  canAddToCart,
+  selectOption,
+  isOptionSelected,
+} = useProductVariants(product)
 
-const galleryItems = computed(() => {
-  if (!Array.isArray(product.value?.gallery)) return [] as GalleryItem[]
-
-  const items: GalleryItem[] = []
-
-  for (const entry of product.value.gallery) {
-    const item = entry as { image?: number | MediaRef | null }
-    const url = getMediaUrl(item.image ?? null)
-    if (!url) continue
-
-    items.push({
-      url,
-      alt:
-        typeof item.image === 'object' && item.image?.alt
-          ? item.image.alt
-          : product.value?.title || undefined,
-    })
-  }
-
-  return items
-})
+const galleryItems = computed(() => activeGallery.value)
 
 const activeImage = computed(() => galleryItems.value[selectedImageIndex.value] ?? galleryItems.value[0] ?? null)
 
-const shortDescriptionText = computed(() =>
-  lexicalToPlainText(product.value?.shortDescription as LexicalRichText),
-)
+const shortDescriptionText = computed(() => lexicalToPlainText(activeShortDescription.value as LexicalRichText))
+
+const hasShortDescription = computed(() => Boolean(shortDescriptionText.value))
 
 const hasLongDescription = computed(() =>
-  Boolean(lexicalToPlainText(product.value?.description as LexicalRichText)),
+  Boolean(lexicalToPlainText(activeDescription.value as LexicalRichText)),
 )
 
 const formattedPrice = computed(() => formatProductPrice(activePrice.value))
@@ -73,38 +59,8 @@ const categoryLabel = computed(() => getProductCategoryLabel(product.value))
 
 const showNewBadge = computed(() => isNewProduct(product.value))
 
-const {
-  hasVariants,
-  variantTypeGroups,
-  selectedVariant,
-  selectedVariantLabel,
-  activePrice,
-  canAddToCart,
-  selectOption,
-  isOptionSelected,
-} = useProductVariants(product)
-
-const getGalleryIndexForVariant = () => {
-  if (!product.value?.gallery || !selectedVariant.value) return 0
-
-  const optionIds = (selectedVariant.value.options ?? [])
-    .map((option) => (typeof option === 'object' && option !== null ? option.id : option))
-    .filter((id): id is number | string => id != null)
-
-  const matchIndex = product.value.gallery.findIndex((entry) => {
-    const variantOption = (entry as { variantOption?: number | VariantOption | null }).variantOption
-    if (!variantOption) return false
-    const variantOptionId =
-      typeof variantOption === 'object' ? variantOption.id : variantOption
-    return optionIds.some((id) => String(id) === String(variantOptionId))
-  })
-
-  return matchIndex >= 0 ? matchIndex : 0
-}
-
 watch(selectedVariant, () => {
-  if (!hasVariants.value) return
-  selectedImageIndex.value = getGalleryIndexForVariant()
+  selectedImageIndex.value = 0
 })
 
 const featuredProductBlocks = computed(() =>
@@ -264,7 +220,7 @@ watch(slug, loadProduct)
         </div>
 
         <p
-          v-if="hasProductShortDescription(product)"
+          v-if="hasShortDescription"
           class="mb-8 text-base leading-relaxed text-slate-600 sm:text-lg"
         >
           {{ shortDescriptionText }}
@@ -377,7 +333,7 @@ watch(slug, loadProduct)
               v-if="hasLongDescription"
               class="prose-cms [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5"
             >
-              <RichText :data="product.description" />
+              <RichText :data="activeDescription" />
             </div>
             <p v-else>
               No hay detalles adicionales para este producto.
