@@ -3,9 +3,12 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import RichText from '@/components/RichText.vue'
 import ProductFeaturedProducts from '@/components/product/ProductFeaturedProducts.vue'
+import ProductVariantSelector from '@/components/product/ProductVariantSelector.vue'
+import { useProductVariants } from '@/composables/useProductVariants'
 import { useCartStore } from '@/stores/cart'
 import { payloadService, type Product } from '@/services/payloadService'
 import type { LexicalRichText, MediaRef, PayloadBlock } from '@/types/blocks'
+import type { VariantOption } from '@/types/variants'
 import {
   formatProductPrice,
   getProductCategoryLabel,
@@ -64,11 +67,45 @@ const hasLongDescription = computed(() =>
   Boolean(lexicalToPlainText(product.value?.description as LexicalRichText)),
 )
 
-const formattedPrice = computed(() => formatProductPrice(product.value?.priceInUSD))
+const formattedPrice = computed(() => formatProductPrice(activePrice.value))
 
 const categoryLabel = computed(() => getProductCategoryLabel(product.value))
 
 const showNewBadge = computed(() => isNewProduct(product.value))
+
+const {
+  hasVariants,
+  variantTypeGroups,
+  selectedVariant,
+  selectedVariantLabel,
+  activePrice,
+  canAddToCart,
+  selectOption,
+  isOptionSelected,
+} = useProductVariants(product)
+
+const getGalleryIndexForVariant = () => {
+  if (!product.value?.gallery || !selectedVariant.value) return 0
+
+  const optionIds = (selectedVariant.value.options ?? [])
+    .map((option) => (typeof option === 'object' && option !== null ? option.id : option))
+    .filter((id): id is number | string => id != null)
+
+  const matchIndex = product.value.gallery.findIndex((entry) => {
+    const variantOption = (entry as { variantOption?: number | VariantOption | null }).variantOption
+    if (!variantOption) return false
+    const variantOptionId =
+      typeof variantOption === 'object' ? variantOption.id : variantOption
+    return optionIds.some((id) => String(id) === String(variantOptionId))
+  })
+
+  return matchIndex >= 0 ? matchIndex : 0
+}
+
+watch(selectedVariant, () => {
+  if (!hasVariants.value) return
+  selectedImageIndex.value = getGalleryIndexForVariant()
+})
 
 const featuredProductBlocks = computed(() =>
   (product.value?.layout ?? []).filter(
@@ -111,13 +148,15 @@ const toggleSection = (section: 'details' | 'shipping') => {
 }
 
 const addToCart = () => {
-  if (!product.value) return
+  if (!product.value || !canAddToCart.value) return
 
   cart.addToCart({
     id: product.value.id,
     title: product.value.title,
     slug: product.value.slug,
-    priceInUSD: product.value.priceInUSD,
+    priceInUSD: activePrice.value,
+    variantId: selectedVariant.value?.id ?? null,
+    variantLabel: selectedVariantLabel.value,
     imageUrl: activeImage.value?.url ?? null,
   })
 }
@@ -237,10 +276,23 @@ watch(slug, loadProduct)
           Este producto aún no tiene descripción.
         </p>
 
+        <ProductVariantSelector
+          v-if="hasVariants"
+          :groups="variantTypeGroups"
+          :is-option-selected="isOptionSelected"
+          @select="selectOption"
+        />
+
         <div class="mb-10 flex flex-col gap-4 sm:flex-row">
           <button
             type="button"
-            class="flex flex-1 items-center justify-center gap-2 rounded-md bg-slate-900 px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-slate-800"
+            class="flex flex-1 items-center justify-center gap-2 rounded-md px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors"
+            :class="
+              canAddToCart
+                ? 'bg-slate-900 hover:bg-slate-800'
+                : 'cursor-not-allowed bg-slate-400'
+            "
+            :disabled="!canAddToCart"
             @click="addToCart"
           >
             <span>Añadir al carrito</span>
