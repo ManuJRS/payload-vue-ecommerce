@@ -3,6 +3,11 @@ import { lexicalToPlainText } from '@/utils/lexical'
 import { getMediaUrl } from '@/utils/media'
 import type { Product, ProductCategory } from '@/services/payloadService'
 
+export const SHOP_PATH = '/tienda'
+
+export const getProductPath = (slug?: string | null) =>
+  slug ? `${SHOP_PATH}/${slug}` : SHOP_PATH
+
 export type ProductRef = {
   relationTo?: 'products' | string
   value?: number | Product | null
