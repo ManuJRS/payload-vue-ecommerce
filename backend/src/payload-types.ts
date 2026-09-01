@@ -303,6 +303,30 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Secciones desplegables en la ficha de producto (envíos, devoluciones, garantía, etc.).
+   */
+  infoAccordion?:
+    | {
+        title: string;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
   layout?: (CallToActionBlock | ContentBlock | MediaBlock | FeaturedProductsBlock)[] | null;
   inventory?: number | null;
   enableVariants?: boolean | null;
@@ -1780,6 +1804,13 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         image?: T;
         variantOption?: T;
+        id?: T;
+      };
+  infoAccordion?:
+    | T
+    | {
+        title?: T;
+        content?: T;
         id?: T;
       };
   layout?:
