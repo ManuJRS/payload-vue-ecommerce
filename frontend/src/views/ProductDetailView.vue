@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import RichText from '@/components/RichText.vue'
 import ProductFeaturedProducts from '@/components/product/ProductFeaturedProducts.vue'
+import ProductInfoAccordion, {
+  type ProductInfoAccordionItem,
+} from '@/components/product/ProductInfoAccordion.vue'
 import ProductVariantSelector from '@/components/product/ProductVariantSelector.vue'
 import { useProductVariants } from '@/composables/useProductVariants'
 import { useCartStore } from '@/stores/cart'
@@ -23,7 +25,6 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const selectedImageIndex = ref(0)
 const wishlisted = ref(false)
-const openSection = ref<'details' | 'shipping' | null>('details')
 
 const slug = computed(() => String(route.params.slug || ''))
 
@@ -59,6 +60,29 @@ const categoryLabel = computed(() => getProductCategoryLabel(product.value))
 
 const showNewBadge = computed(() => isNewProduct(product.value))
 
+const accordionItems = computed<ProductInfoAccordionItem[]>(() => {
+  const items: ProductInfoAccordionItem[] = []
+
+  if (hasLongDescription.value) {
+    items.push({
+      id: 'details',
+      title: 'Detalles',
+      content: activeDescription.value as LexicalRichText,
+    })
+  }
+
+  for (const item of product.value?.infoAccordion ?? []) {
+    if (!item?.title) continue
+    items.push({
+      id: item.id,
+      title: item.title,
+      content: item.content ?? null,
+    })
+  }
+
+  return items
+})
+
 watch(selectedVariant, () => {
   selectedImageIndex.value = 0
 })
@@ -80,7 +104,6 @@ const loadProduct = async () => {
   loading.value = true
   error.value = null
   selectedImageIndex.value = 0
-  openSection.value = 'details'
 
   try {
     product.value = await payloadService.getProductBySlug(slug.value)
@@ -97,10 +120,6 @@ const loadProduct = async () => {
 
 const selectImage = (index: number) => {
   selectedImageIndex.value = index
-}
-
-const toggleSection = (section: 'details' | 'shipping') => {
-  openSection.value = openSection.value === section ? null : section
 }
 
 const addToCart = () => {
@@ -309,70 +328,14 @@ watch(slug, loadProduct)
           </button>
         </div>
 
-        <div class="border-t border-slate-200">
-          <button
-            type="button"
-            class="group flex w-full items-center justify-between border-b border-slate-200 py-4 text-left"
-            @click="toggleSection('details')"
-          >
-            <span class="text-sm font-semibold uppercase tracking-wide text-slate-900 transition-colors group-hover:text-slate-600">
-              Detalles
-            </span>
-            <span
-              class="text-lg leading-none text-slate-500 transition-colors group-hover:text-slate-700"
-              aria-hidden="true"
-            >
-              {{ openSection === 'details' ? '−' : '+' }}
-            </span>
-          </button>
-          <div
-            v-if="openSection === 'details'"
-            class="border-b border-slate-200 py-4 text-sm leading-relaxed text-slate-600 sm:text-base"
-          >
-            <div
-              v-if="hasLongDescription"
-              class="prose-cms [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5"
-            >
-              <RichText :data="activeDescription" />
-            </div>
-            <p v-else>
-              No hay detalles adicionales para este producto.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="group flex w-full items-center justify-between border-b border-slate-200 py-4 text-left"
-            @click="toggleSection('shipping')"
-          >
-            <span class="text-sm font-semibold uppercase tracking-wide text-slate-900 transition-colors group-hover:text-slate-600">
-              Envíos y devoluciones
-            </span>
-            <span
-              class="text-lg leading-none text-slate-500 transition-colors group-hover:text-slate-700"
-              aria-hidden="true"
-            >
-              {{ openSection === 'shipping' ? '−' : '+' }}
-            </span>
-          </button>
-          <div
-            v-if="openSection === 'shipping'"
-            class="border-b border-slate-200 py-4 text-sm leading-relaxed text-slate-600 sm:text-base"
-          >
-            <ul class="list-disc space-y-2 pl-5">
-              <li>Envío estándar en 3–5 días hábiles.</li>
-              <li>Devoluciones gratuitas dentro de los 30 días.</li>
-              <li>El producto debe estar sin usar y en su empaque original.</li>
-            </ul>
-          </div>
-        </div>
+        <ProductInfoAccordion :items="accordionItems" />
       </div>
     </article>
 
     <ProductFeaturedProducts
       v-for="(block, index) in featuredProductBlocks"
       :key="block.id || `featured-products-${index}`"
-      :title="block.title"
+      :title="block.title as string"
       :block-name="block.blockName"
       :products="block.products"
     />

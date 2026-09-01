@@ -41,12 +41,19 @@ export type Category = PayloadDoc & {
   image?: number | MediaRef | null
 }
 
+export type ProductInfoAccordionItem = {
+  id?: string | null
+  title: string
+  content?: LexicalRichText
+}
+
 export type Product = PayloadDoc &
   ProductVariantsField & {
     title: string
     slug?: string | null
     shortDescription?: LexicalRichText
     description?: LexicalRichText
+    infoAccordion?: ProductInfoAccordionItem[] | null
     gallery?: ProductGalleryItem[] | null
     layout?: PayloadBlock[] | null
     categories?: Array<number | ProductCategory> | null
