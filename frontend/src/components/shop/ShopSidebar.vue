@@ -1,5 +1,17 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useShopFilters } from '@/composables/useShopFilters'
+
+const emit = defineEmits<{
+  apply: []
+}>()
+
+const filters = useShopFilters()
+
+const handleApply = () => {
+  filters.applyFilters()
+  emit('apply')
+}
 </script>
 
 <template>
@@ -31,7 +43,13 @@ import { RouterLink } from 'vue-router'
     <div class="mt-8 border-t border-slate-200 pt-4">
       <button
         type="button"
-        class="w-full rounded-md bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+        class="w-full rounded-md px-4 py-3 text-sm font-medium text-white transition"
+        :class="
+          filters.hasPendingChanges
+            ? 'bg-slate-900 hover:bg-slate-800'
+            : 'cursor-default bg-slate-400'
+        "
+        @click="handleApply"
       >
         Aplicar filtros
       </button>
