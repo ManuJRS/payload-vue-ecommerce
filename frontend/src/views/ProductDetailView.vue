@@ -14,6 +14,7 @@ import {
   formatProductPrice,
   getProductCategoryLabel,
   isNewProduct,
+  SHOP_PATH,
 } from '@/utils/product'
 import { lexicalToPlainText } from '@/utils/lexical'
 
@@ -142,12 +143,49 @@ watch(slug, loadProduct)
 
 <template>
   <div class="mx-auto w-full max-w-6xl px-6 py-10 sm:py-16">
-    <RouterLink
-      to="/"
-      class="mb-8 inline-flex text-sm font-medium text-slate-600 transition hover:text-slate-900"
+    <nav
+      aria-label="Migas de pan"
+      class="mb-8 text-sm"
     >
-      ← Volver al inicio
-    </RouterLink>
+      <ol class="flex flex-wrap items-center gap-2 text-slate-600">
+        <li>
+          <RouterLink
+            to="/"
+            class="transition hover:text-slate-900"
+          >
+            Inicio
+          </RouterLink>
+        </li>
+        <li
+          aria-hidden="true"
+          class="text-slate-400"
+        >
+          /
+        </li>
+        <li>
+          <RouterLink
+            :to="SHOP_PATH"
+            class="transition hover:text-slate-900"
+          >
+            Tienda
+          </RouterLink>
+        </li>
+        <template v-if="product">
+          <li
+            aria-hidden="true"
+            class="text-slate-400"
+          >
+            /
+          </li>
+          <li
+            class="font-medium text-slate-900"
+            aria-current="page"
+          >
+            {{ product.title }}
+          </li>
+        </template>
+      </ol>
+    </nav>
 
     <div
       v-if="loading"
