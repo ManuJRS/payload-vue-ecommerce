@@ -4,10 +4,15 @@ import ShopSidebar from '@/components/shop/ShopSidebar.vue'
 import ShopProductGrid from '@/components/shop/ShopProductGrid.vue'
 import ShopFilterCategory from '@/components/shop/filters/ShopFilterCategory.vue'
 import ShopFilterPrice from '@/components/shop/filters/ShopFilterPrice.vue'
-import ShopFilterSize from '@/components/shop/filters/ShopFilterSize.vue'
-import ShopFilterColor from '@/components/shop/filters/ShopFilterColor.vue'
+import { provideShopFilters } from '@/composables/useShopFilters'
+
+provideShopFilters()
 
 const mobileFiltersOpen = ref(false)
+
+const handleApplyFilters = () => {
+  mobileFiltersOpen.value = false
+}
 </script>
 
 <template>
@@ -34,11 +39,9 @@ const mobileFiltersOpen = ref(false)
         class="fixed inset-y-0 left-0 z-40 w-[min(100%,20rem)] overflow-y-auto border-r border-slate-200 bg-white p-6 shadow-xl transition-transform duration-300 lg:static lg:z-auto lg:mr-8 lg:w-64 lg:translate-x-0 lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
         :class="mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
       >
-        <ShopSidebar>
+        <ShopSidebar @apply="handleApplyFilters">
           <ShopFilterCategory />
           <ShopFilterPrice />
-          <ShopFilterSize />
-          <ShopFilterColor />
         </ShopSidebar>
       </div>
 
