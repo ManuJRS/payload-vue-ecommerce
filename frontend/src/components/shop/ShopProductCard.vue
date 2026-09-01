@@ -5,6 +5,7 @@ import {
   formatProductPrice,
   getProductCategoryLabel,
   getProductImageUrl,
+  getProductPath,
   isNewProduct,
 } from '@/utils/product'
 
@@ -28,7 +29,7 @@ const isLowStock = () =>
 <template>
   <article class="group relative flex flex-col rounded-sm bg-white transition-shadow duration-300 hover:shadow-lg">
     <RouterLink
-      :to="product.slug ? `/productos/${product.slug}` : '/'"
+      :to="getProductPath(product.slug)"
       class="relative mb-4 aspect-[3/4] overflow-hidden rounded-sm bg-slate-100"
     >
       <img
