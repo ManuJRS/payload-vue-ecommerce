@@ -22,6 +22,7 @@ import {
 import { DefaultDocumentIDType, Where } from 'payload'
 
 import { normalizeLexicalInlineFormats } from '@/utilities/normalizeLexicalInlineFormats'
+import { infoAccordionField } from '@/fields/infoAccordion'
 
 const productRichTextEditor = lexicalEditor({
   features: ({ rootFeatures }) => [
@@ -66,6 +67,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
     variants: true,
     enableVariants: true,
     gallery: true,
+    infoAccordion: true,
     priceInUSD: true,
     inventory: true,
     meta: true,
@@ -156,7 +158,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
                 },
               ],
             },
-
+            infoAccordionField,
             {
               name: 'layout',
               type: 'blocks',
