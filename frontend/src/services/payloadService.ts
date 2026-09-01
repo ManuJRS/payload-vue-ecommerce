@@ -94,19 +94,51 @@ export type ProductListParams = {
   page?: number
   ids?: Array<number | string>
   categoryIds?: Array<number | string>
+  minPrice?: number | null
+  maxPrice?: number | null
   sort?: string
 }
 
 const toWhereParams = (params: ProductListParams) => {
   const query: Record<string, string | number | boolean> = {}
 
-  params.ids?.forEach((id, index) => {
-    query[`where[id][in][${index}]`] = id
-  })
+  const hasCategories = (params.categoryIds?.length ?? 0) > 0
+  const hasMinPrice = params.minPrice != null
+  const hasMaxPrice = params.maxPrice != null
+  const hasIds = (params.ids?.length ?? 0) > 0
+  const hasExtraFilters = hasCategories || hasMinPrice || hasMaxPrice
 
-  params.categoryIds?.forEach((id, index) => {
-    query[`where[or][${index}][categories][contains]`] = id
-  })
+  if (hasIds && !hasExtraFilters) {
+    params.ids?.forEach((id, index) => {
+      query[`where[id][in][${index}]`] = id
+    })
+    return query
+  }
+
+  let andIndex = 0
+
+  if (hasIds) {
+    params.ids?.forEach((id, index) => {
+      query[`where[and][${andIndex}][id][in][${index}]`] = id
+    })
+    andIndex += 1
+  }
+
+  if (hasCategories) {
+    params.categoryIds?.forEach((id, index) => {
+      query[`where[and][${andIndex}][or][${index}][categories][contains]`] = id
+    })
+    andIndex += 1
+  }
+
+  if (hasMinPrice) {
+    query[`where[and][${andIndex}][priceInUSD][greater_than_equal]`] = params.minPrice!
+    andIndex += 1
+  }
+
+  if (hasMaxPrice) {
+    query[`where[and][${andIndex}][priceInUSD][less_than_equal]`] = params.maxPrice!
+  }
 
   return query
 }
@@ -128,7 +160,7 @@ const toCategoryWhereParams = (params: CategoryListParams) => {
 export const payloadService = {
   /** Catálogo de productos publicados. */
   async getProducts(params: ProductListParams = {}) {
-    const { ids, categoryIds, ...rest } = params
+    const { ids, categoryIds, minPrice, maxPrice, ...rest } = params
     const { data } = await api.get<PayloadListResponse<Product>>('/api/products', {
       params: {
         depth: 2,
@@ -136,7 +168,7 @@ export const payloadService = {
         page: rest.page ?? 1,
         sort: rest.sort ?? '-createdAt',
         ...publishedOnly,
-        ...toWhereParams({ ids, categoryIds }),
+        ...toWhereParams({ ids, categoryIds, minPrice, maxPrice }),
       },
     })
 
