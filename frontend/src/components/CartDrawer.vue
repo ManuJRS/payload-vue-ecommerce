@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { getProductPath } from '@/utils/product'
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -137,7 +138,7 @@ onUnmounted(() => {
                     <div class="min-w-0">
                       <RouterLink
                         v-if="item.slug"
-                        :to="`/productos/${item.slug}`"
+                        :to="getProductPath(item.slug)"
                         class="block truncate font-medium text-slate-900 hover:text-indigo-700"
                         @click="close"
                       >

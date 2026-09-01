@@ -1,3 +1,5 @@
+import { getProductPath } from '@/utils/product'
+
 export type NavLink = {
   type?: ('reference' | 'custom') | null
   newTab?: boolean | null
@@ -42,7 +44,7 @@ export const resolveNavHref = (link?: NavLink | null) => {
   const value = link.reference?.value
   if (value && typeof value === 'object' && value.slug) {
     const relationTo = link.reference?.relationTo
-    if (relationTo === 'products') return `/productos/${value.slug}`
+    if (relationTo === 'products') return getProductPath(value.slug)
     return value.slug === 'home' ? '/' : normalizePath(value.slug)
   }
 

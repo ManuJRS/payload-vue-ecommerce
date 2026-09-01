@@ -18,9 +18,13 @@ const router = createRouter({
       component: ShopView,
     },
     {
-      path: '/productos/:slug',
+      path: '/tienda/:slug',
       name: 'product-detail',
       component: ProductDetailView,
+    },
+    {
+      path: '/productos/:slug',
+      redirect: (to) => ({ path: `/tienda/${String(to.params.slug)}` }),
     },
     {
       path: '/:slug',

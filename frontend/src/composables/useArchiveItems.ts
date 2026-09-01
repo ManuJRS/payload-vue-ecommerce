@@ -9,6 +9,7 @@ import { getMediaUrl } from '@/utils/media'
 import {
   getProductId,
   getProductImageUrl,
+  getProductPath,
   normalizeProducts,
   type ProductRef,
 } from '@/utils/product'
@@ -60,7 +61,7 @@ const toProductTile = (product: Product): ArchiveTile => ({
   id: product.id,
   title: product.title,
   slug: product.slug,
-  href: product.slug ? `/productos/${product.slug}` : '/',
+  href: getProductPath(product.slug),
   imageUrl: getProductImageUrl(product),
   kind: 'product',
 })
