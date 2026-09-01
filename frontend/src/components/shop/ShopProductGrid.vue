@@ -3,11 +3,13 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { payloadService, type Product } from '@/services/payloadService'
 import { getProductImageUrl } from '@/utils/product'
+import { useShopFilters } from '@/composables/useShopFilters'
 import ShopProductCard from './ShopProductCard.vue'
 
 const PAGE_SIZE = 12
 
 const cart = useCartStore()
+const shopFilters = useShopFilters()
 
 const products = ref<Product[]>([])
 const loading = ref(false)
@@ -51,15 +53,52 @@ const visiblePages = computed(() => {
   return pages
 })
 
+const resolvePriceBounds = (items: Product[]) => {
+  const prices = items
+    .map((product) => product.priceInUSD)
+    .filter((price): price is number => typeof price === 'number')
+
+  if (prices.length === 0) {
+    return { min: 0, max: 1000 }
+  }
+
+  const minCents = Math.min(...prices)
+  const maxCents = Math.max(...prices)
+  const min = Math.floor(minCents / 100)
+  const max = Math.ceil(maxCents / 100)
+
+  return {
+    min,
+    max: min === max ? max + 1 : max,
+  }
+}
+
+const loadPriceBounds = async () => {
+  try {
+    const response = await payloadService.getProducts({
+      limit: 250,
+      sort: 'priceInUSD',
+    })
+    shopFilters.setPriceBounds(resolvePriceBounds(response.docs))
+  } catch {
+    shopFilters.setPriceBounds({ min: 0, max: 1000 })
+  }
+}
+
 const loadProducts = async () => {
   loading.value = true
   error.value = null
+
+  const { categoryIds, minPrice, maxPrice } = shopFilters.appliedFilters.value
 
   try {
     const response = await payloadService.getProducts({
       limit: PAGE_SIZE,
       page: page.value,
       sort: sort.value,
+      categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
+      minPrice,
+      maxPrice,
     })
 
     products.value = response.docs
@@ -90,9 +129,17 @@ const addToCart = (product: Product) => {
   })
 }
 
-onMounted(loadProducts)
+onMounted(async () => {
+  await loadPriceBounds()
+  await loadProducts()
+})
+
 watch(page, loadProducts)
 watch(sort, () => {
+  page.value = 1
+  loadProducts()
+})
+watch(() => shopFilters.appliedRevision.value, () => {
   page.value = 1
   loadProducts()
 })
@@ -170,7 +217,7 @@ watch(sort, () => {
       v-else
       class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500"
     >
-      No hay productos publicados en la tienda.
+      No hay productos que coincidan con los filtros seleccionados.
     </p>
 
     <div
