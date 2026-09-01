@@ -8,6 +8,7 @@ import type { Product } from '@/services/payloadService'
 import {
   formatProductPrice,
   getProductImageUrl,
+  getProductPath,
   getProductShortDescription,
   hasProductShortDescription,
   isNewProduct,
@@ -149,7 +150,7 @@ const addProduct = (product: Product) => {
           </div>
 
           <RouterLink
-            :to="product.slug ? `/productos/${product.slug}` : '/'"
+            :to="getProductPath(product.slug)"
             class="block aspect-[4/5] overflow-hidden rounded-t-lg bg-slate-100"
           >
             <img
@@ -168,7 +169,7 @@ const addProduct = (product: Product) => {
 
           <div class="p-6">
             <RouterLink
-              :to="product.slug ? `/productos/${product.slug}` : '/'"
+              :to="getProductPath(product.slug)"
               class="mb-1 block text-[20px] leading-tight font-semibold text-slate-900"
             >
               {{ product.title }}

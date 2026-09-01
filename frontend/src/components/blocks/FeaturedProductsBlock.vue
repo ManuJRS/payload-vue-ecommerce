@@ -6,6 +6,7 @@ import { payloadService, type Product } from '@/services/payloadService'
 import type { LexicalRichText } from '@/types/blocks'
 import { lexicalToHtml } from '@/utils/lexical'
 import { getMediaUrl } from '@/utils/media'
+import { getProductPath } from '@/utils/product'
 
 type SelectedDoc = {
   relationTo?: 'products' | string
@@ -147,7 +148,7 @@ watch(
         class="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition hover:border-indigo-200 hover:shadow-md"
       >
         <RouterLink
-          :to="product.slug ? `/productos/${product.slug}` : '/'"
+          :to="getProductPath(product.slug)"
           class="aspect-[4/3] bg-slate-200"
         >
           <img
@@ -167,7 +168,7 @@ watch(
         <div class="flex flex-1 flex-col gap-3 p-4 text-left">
           <div>
             <RouterLink
-              :to="product.slug ? `/productos/${product.slug}` : '/'"
+              :to="getProductPath(product.slug)"
               class="text-lg font-semibold text-slate-900 transition hover:text-indigo-700"
             >
               {{ product.title }}

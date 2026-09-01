@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { payloadService, type Product } from '@/services/payloadService'
-import { formatProductPrice, getProductImageUrl, isProduct } from '@/utils/product'
+import { formatProductPrice, getProductImageUrl, getProductPath, isProduct } from '@/utils/product'
 
 export type FeaturedProductsBlockData = {
   blockType?: 'featuredProducts' | string
@@ -81,7 +81,7 @@ watch(() => props.products, loadProducts, { immediate: true, deep: true })
       <RouterLink
         v-for="item in items"
         :key="item.id"
-        :to="item.slug ? `/productos/${item.slug}` : '/'"
+        :to="getProductPath(item.slug)"
         class="group block"
       >
         <div
