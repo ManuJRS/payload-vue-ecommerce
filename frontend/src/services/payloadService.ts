@@ -96,22 +96,33 @@ export type ProductListParams = {
   categoryIds?: Array<number | string>
   minPrice?: number | null
   maxPrice?: number | null
+  search?: string | null
   sort?: string
 }
 
 const toWhereParams = (params: ProductListParams) => {
   const query: Record<string, string | number | boolean> = {}
 
+  const search = params.search?.trim() ?? ''
+  const hasSearch = search.length > 0
   const hasCategories = (params.categoryIds?.length ?? 0) > 0
   const hasMinPrice = params.minPrice != null
   const hasMaxPrice = params.maxPrice != null
   const hasIds = (params.ids?.length ?? 0) > 0
-  const hasExtraFilters = hasCategories || hasMinPrice || hasMaxPrice
 
-  if (hasIds && !hasExtraFilters) {
+  const filterCount = [hasIds, hasSearch, hasCategories, hasMinPrice, hasMaxPrice].filter(Boolean).length
+
+  if (filterCount === 0) return query
+
+  if (filterCount === 1 && hasIds) {
     params.ids?.forEach((id, index) => {
       query[`where[id][in][${index}]`] = id
     })
+    return query
+  }
+
+  if (filterCount === 1 && hasSearch) {
+    query['where[title][contains]'] = search
     return query
   }
 
@@ -121,6 +132,11 @@ const toWhereParams = (params: ProductListParams) => {
     params.ids?.forEach((id, index) => {
       query[`where[and][${andIndex}][id][in][${index}]`] = id
     })
+    andIndex += 1
+  }
+
+  if (hasSearch) {
+    query[`where[and][${andIndex}][title][contains]`] = search
     andIndex += 1
   }
 
@@ -160,7 +176,7 @@ const toCategoryWhereParams = (params: CategoryListParams) => {
 export const payloadService = {
   /** Catálogo de productos publicados. */
   async getProducts(params: ProductListParams = {}) {
-    const { ids, categoryIds, minPrice, maxPrice, ...rest } = params
+    const { ids, categoryIds, minPrice, maxPrice, search, ...rest } = params
     const { data } = await api.get<PayloadListResponse<Product>>('/api/products', {
       params: {
         depth: 2,
@@ -168,7 +184,7 @@ export const payloadService = {
         page: rest.page ?? 1,
         sort: rest.sort ?? '-createdAt',
         ...publishedOnly,
-        ...toWhereParams({ ids, categoryIds, minPrice, maxPrice }),
+        ...toWhereParams({ ids, categoryIds, minPrice, maxPrice, search }),
       },
     })
 
