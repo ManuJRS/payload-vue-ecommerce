@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { payloadService, type Product } from '@/services/payloadService'
 import { getProductImageUrl } from '@/utils/product'
@@ -10,6 +11,12 @@ const PAGE_SIZE = 12
 
 const cart = useCartStore()
 const shopFilters = useShopFilters()
+const route = useRoute()
+
+const appliedSearch = computed(() => {
+  const value = route.query.q
+  return typeof value === 'string' ? value.trim() : ''
+})
 
 const products = ref<Product[]>([])
 const loading = ref(false)
@@ -99,6 +106,7 @@ const loadProducts = async () => {
       categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
       minPrice,
       maxPrice,
+      search: appliedSearch.value || undefined,
     })
 
     products.value = response.docs
@@ -143,12 +151,23 @@ watch(() => shopFilters.appliedRevision.value, () => {
   page.value = 1
   loadProducts()
 })
+watch(appliedSearch, () => {
+  page.value = 1
+  loadProducts()
+})
 </script>
 
 <template>
   <section class="flex-grow pt-12 lg:pt-0">
     <div class="mb-8 flex flex-col items-start justify-between gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-center">
-      <p class="text-sm font-medium text-slate-500">
+      <div>
+        <p
+          v-if="appliedSearch"
+          class="mb-1 text-sm font-medium text-slate-900"
+        >
+          Resultados para “{{ appliedSearch }}”
+        </p>
+        <p class="text-sm font-medium text-slate-500">
         <template v-if="loading">
           Cargando productos...
         </template>
@@ -158,7 +177,8 @@ watch(() => shopFilters.appliedRevision.value, () => {
         <template v-else>
           No hay productos disponibles
         </template>
-      </p>
+        </p>
+      </div>
 
       <div class="flex w-full items-center gap-4 sm:w-auto">
         <label
