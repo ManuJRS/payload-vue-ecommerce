@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import CartDrawer from '@/components/CartDrawer.vue'
+import ProductSearchBar from '@/components/ProductSearchBar.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useCartStore } from '@/stores/cart'
 import { payloadService } from '@/services/payloadService'
@@ -29,10 +30,15 @@ onMounted(loadHeader)
 <template>
   <div class="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 text-slate-900">
     <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <RouterLink to="/" class="text-lg font-semibold tracking-tight text-slate-900">
+      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:px-8">
+        <RouterLink
+          to="/"
+          class="shrink-0 text-lg font-semibold tracking-tight text-slate-900"
+        >
           Payload <span class="text-indigo-600">Vue</span> Shop
         </RouterLink>
+
+        <ProductSearchBar />
 
         <nav class="flex flex-wrap items-center justify-end gap-3 text-sm font-medium text-slate-600">
           <template
