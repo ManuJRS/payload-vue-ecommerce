@@ -69,7 +69,7 @@ const selectedLabelForGroup = (group: VariantTypeGroup) => {
           class="rounded border px-3 py-3 text-sm font-medium transition focus:outline-none"
           :class="
             isOptionSelected(group.id, option.id)
-              ? 'border-slate-900 bg-slate-900 text-white'
+              ? 'border-black bg-black text-white hover:bg-slate-900 hover:text-white'
               : 'border-slate-300 text-slate-700 hover:border-slate-900'
           "
           @click="emit('select', group.id, option.id)"

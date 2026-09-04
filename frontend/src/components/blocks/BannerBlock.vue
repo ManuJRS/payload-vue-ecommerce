@@ -41,7 +41,7 @@ const buttonHref = computed(() => (buttonLink.value ? resolveNavHref(buttonLink.
 <template>
   <section
     v-if="heading || description || buttonLink"
-    class="my-8 w-full bg-slate-900 py-8 text-white"
+    class="my-8 w-full bg-black py-8 text-white"
   >
     <div
       class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 md:flex-row"
@@ -65,7 +65,7 @@ const buttonHref = computed(() => (buttonLink.value ? resolveNavHref(buttonLink.
         <a
           v-if="isExternalHref(buttonHref)"
           :href="buttonHref"
-          class="inline-flex h-10 items-center justify-center rounded bg-white px-6 text-sm font-medium text-slate-900 transition-colors duration-200 hover:bg-slate-100"
+          class="inline-flex h-10 items-center justify-center rounded bg-white px-6 text-sm font-medium !text-black transition-colors duration-200 hover:bg-slate-100"
           :target="buttonLink.newTab ? '_blank' : undefined"
           :rel="buttonLink.newTab ? 'noopener noreferrer' : undefined"
         >
@@ -74,7 +74,7 @@ const buttonHref = computed(() => (buttonLink.value ? resolveNavHref(buttonLink.
         <RouterLink
           v-else
           :to="buttonHref"
-          class="inline-flex h-10 items-center justify-center rounded bg-white px-6 text-sm font-medium text-slate-900 transition-colors duration-200 hover:bg-slate-100"
+          class="inline-flex h-10 items-center justify-center rounded bg-white px-6 text-sm font-medium !text-black transition-colors duration-200 hover:bg-slate-100"
           :target="buttonLink.newTab ? '_blank' : undefined"
           :rel="buttonLink.newTab ? 'noopener noreferrer' : undefined"
         >
