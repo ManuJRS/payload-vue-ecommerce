@@ -46,7 +46,7 @@ const handleApply = () => {
         class="w-full rounded-md px-4 py-3 text-sm font-medium text-white transition"
         :class="
           filters.hasPendingChanges
-            ? 'bg-slate-900 hover:bg-slate-800'
+            ? 'bg-black text-white hover:bg-slate-900'
             : 'cursor-default bg-slate-400'
         "
         @click="handleApply"

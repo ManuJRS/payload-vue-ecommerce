@@ -302,7 +302,7 @@ watch(slug, loadProduct)
             class="flex flex-1 items-center justify-center gap-2 rounded-md px-8 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-colors"
             :class="
               canAddToCart
-                ? 'bg-slate-900 hover:bg-slate-800'
+                ? 'bg-black text-white hover:bg-slate-900'
                 : 'cursor-not-allowed bg-slate-400'
             "
             :disabled="!canAddToCart"

@@ -69,7 +69,7 @@ const buttonHref = computed(() => (buttonLink.value ? resolveNavHref(buttonLink.
           <a
             v-if="isExternalHref(buttonHref)"
             :href="buttonHref"
-            class="inline-flex h-14 w-full items-center justify-center rounded-md bg-slate-900 px-10 text-sm font-medium text-white transition-colors duration-200 hover:bg-slate-800 sm:w-auto"
+            class="inline-flex h-14 w-full items-center justify-center rounded-md bg-black px-10 text-sm font-medium !text-white !font-bold transition-colors duration-200 hover:bg-slate-900 hover:text-white sm:w-auto"
             :target="buttonLink.newTab ? '_blank' : undefined"
             :rel="buttonLink.newTab ? 'noopener noreferrer' : undefined"
           >
@@ -78,7 +78,7 @@ const buttonHref = computed(() => (buttonLink.value ? resolveNavHref(buttonLink.
           <RouterLink
             v-else
             :to="buttonHref"
-            class="inline-flex h-14 w-full items-center justify-center rounded-md bg-slate-900 px-10 text-sm font-medium text-white transition-colors duration-200 hover:bg-slate-800 sm:w-auto"
+            class="inline-flex h-14 w-full items-center justify-center rounded-md bg-black px-10 text-sm font-medium !text-white !font-bold transition-colors duration-200 hover:bg-slate-900 hover:text-white sm:w-auto"
             :target="buttonLink.newTab ? '_blank' : undefined"
             :rel="buttonLink.newTab ? 'noopener noreferrer' : undefined"
           >

@@ -261,7 +261,7 @@ watch(appliedSearch, () => {
         class="flex h-10 w-10 items-center justify-center rounded border text-sm font-medium transition"
         :class="
           currentPage === page
-            ? 'border-slate-900 bg-slate-900 text-white'
+            ? 'border-black bg-black text-white hover:bg-slate-900 hover:text-white'
             : 'border-slate-300 text-slate-500 hover:border-slate-900'
         "
         @click="goToPage(currentPage)"

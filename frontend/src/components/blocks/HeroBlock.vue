@@ -142,7 +142,7 @@ const buttons = computed(() => {
               class="inline-flex h-12 items-center justify-center rounded px-8 text-sm font-medium transition-colors duration-200"
               :class="
                 index === 0
-                  ? 'bg-slate-900 text-white hover:bg-indigo-700'
+                  ? 'bg-black !text-white hover:bg-slate-900 hover:!text-white'
                   : 'border border-slate-300 text-slate-900 hover:bg-slate-100'
               "
               :target="button.newTab ? '_blank' : undefined"
@@ -156,7 +156,7 @@ const buttons = computed(() => {
               class="inline-flex h-12 items-center justify-center rounded px-8 text-sm font-medium transition-colors duration-200"
               :class="
                 index === 0
-                  ? 'bg-slate-900 text-white hover:bg-indigo-700'
+                  ? 'bg-black !text-white !font-bold hover:bg-slate-900 hover:!text-white'
                   : 'border border-slate-300 text-slate-900 hover:bg-slate-100'
               "
               :target="button.newTab ? '_blank' : undefined"
