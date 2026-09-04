@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCarouselProducts, type CarouselProductSource } from '@/composables/useCarouselProducts'
 import RichText from '@/components/RichText.vue'
@@ -56,12 +56,247 @@ const { products: carouselProducts, loading, error } = useCarouselProducts(sourc
 
 const heading = computed(() => props.title || props.blockName || 'Productos destacados')
 
+type CarouselSlide = {
+  key: string
+  product: Product
+  setIndex: number
+}
+
+/** Tres copias del listado para poder saltar al set central al llegar a un extremo. */
+const loopSlides = computed<CarouselSlide[]>(() => {
+  const products = carouselProducts.value
+  if (products.length === 0) return []
+
+  return [0, 1, 2].flatMap((setIndex) =>
+    products.map((product) => ({
+      key: `${setIndex}-${product.id}`,
+      product,
+      setIndex,
+    })),
+  )
+})
+
+const canLoop = computed(() => carouselProducts.value.length > 0)
+
+const isDragging = ref(false)
+const dragMoved = ref(false)
+let dragStartX = 0
+let dragScrollLeft = 0
+let isJumping = false
+let dragVelocity = 0
+let lastPointerX = 0
+let lastPointerTime = 0
+let momentumFrame: number | null = null
+
+const FRICTION = 0.92
+const MIN_VELOCITY = 0.35
+const SNAP_DURATION_MS = 420
+
+const getGap = (el: HTMLElement) => {
+  const styles = window.getComputedStyle(el)
+  return Number.parseFloat(styles.columnGap || styles.gap || '0') || 0
+}
+
+const getCardStep = (el: HTMLElement) => {
+  const card = el.querySelector<HTMLElement>('[data-carousel-card]')
+  if (!card) return 320
+  return card.offsetWidth + getGap(el)
+}
+
+const getSetWidth = (el: HTMLElement) => {
+  const count = carouselProducts.value.length
+  if (count === 0) return 0
+  return getCardStep(el) * count
+}
+
+const cancelMomentum = () => {
+  if (momentumFrame != null) {
+    cancelAnimationFrame(momentumFrame)
+    momentumFrame = null
+  }
+}
+
+const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
+
+const animateScrollTo = (el: HTMLElement, target: number, duration = SNAP_DURATION_MS) =>
+  new Promise<void>((resolve) => {
+    cancelMomentum()
+    let start = el.scrollLeft
+    let distance = target - start
+    if (Math.abs(distance) < 1) {
+      el.scrollLeft = target
+      resolve()
+      return
+    }
+
+    const startTime = performance.now()
+
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1)
+      const desired = start + distance * easeOutCubic(progress)
+      el.scrollLeft = desired
+      const beforeNormalize = el.scrollLeft
+      normalizeInfiniteScroll()
+      const jump = el.scrollLeft - beforeNormalize
+      if (jump !== 0) {
+        start += jump
+      }
+
+      if (progress < 1) {
+        momentumFrame = requestAnimationFrame(step)
+        return
+      }
+
+      momentumFrame = null
+      normalizeInfiniteScroll()
+      resolve()
+    }
+
+    momentumFrame = requestAnimationFrame(step)
+  })
+
+const snapToNearestCard = (el: HTMLElement, extraOffset = 0) => {
+  const step = getCardStep(el)
+  if (step <= 0) return
+
+  const target = Math.round((el.scrollLeft + extraOffset) / step) * step
+  return animateScrollTo(el, target)
+}
+
+const centerOnMiddleSet = async () => {
+  await nextTick()
+  const el = scroller.value
+  if (!el || !canLoop.value) return
+
+  cancelMomentum()
+  isJumping = true
+  el.scrollLeft = getSetWidth(el)
+  requestAnimationFrame(() => {
+    isJumping = false
+  })
+}
+
+const normalizeInfiniteScroll = () => {
+  const el = scroller.value
+  if (!el || !canLoop.value || isJumping) return
+
+  const setWidth = getSetWidth(el)
+  if (setWidth <= 0) return
+
+  // Si estamos en el set inicial o final, saltamos al set central equivalente.
+  if (el.scrollLeft <= setWidth * 0.05) {
+    isJumping = true
+    el.scrollLeft += setWidth
+    if (isDragging.value) {
+      dragScrollLeft += setWidth
+    }
+    requestAnimationFrame(() => {
+      isJumping = false
+    })
+  } else if (el.scrollLeft >= setWidth * 1.95) {
+    isJumping = true
+    el.scrollLeft -= setWidth
+    if (isDragging.value) {
+      dragScrollLeft -= setWidth
+    }
+    requestAnimationFrame(() => {
+      isJumping = false
+    })
+  }
+}
+
 const scrollByCard = (direction: -1 | 1) => {
   const el = scroller.value
   if (!el) return
-  const card = el.querySelector<HTMLElement>('[data-carousel-card]')
-  const amount = (card?.offsetWidth ?? 320) + 24
-  el.scrollBy({ left: amount * direction, behavior: 'smooth' })
+  cancelMomentum()
+  const target = el.scrollLeft + getCardStep(el) * direction
+  void animateScrollTo(el, target)
+}
+
+const runMomentum = (el: HTMLElement) => {
+  cancelMomentum()
+
+  const tick = () => {
+    if (Math.abs(dragVelocity) < MIN_VELOCITY) {
+      momentumFrame = null
+      void snapToNearestCard(el)
+      return
+    }
+
+    el.scrollLeft += dragVelocity
+    dragVelocity *= FRICTION
+    normalizeInfiniteScroll()
+    momentumFrame = requestAnimationFrame(tick)
+  }
+
+  momentumFrame = requestAnimationFrame(tick)
+}
+
+const onPointerDown = (event: PointerEvent) => {
+  // Arrastre solo con mouse / pen; el touch nativo ya hace scroll.
+  if (event.pointerType === 'touch') return
+  const el = scroller.value
+  if (!el) return
+
+  cancelMomentum()
+  isDragging.value = true
+  dragMoved.value = false
+  dragStartX = event.clientX
+  dragScrollLeft = el.scrollLeft
+  dragVelocity = 0
+  lastPointerX = event.clientX
+  lastPointerTime = performance.now()
+  el.setPointerCapture(event.pointerId)
+  el.classList.add('is-dragging')
+}
+
+const onPointerMove = (event: PointerEvent) => {
+  if (!isDragging.value) return
+  const el = scroller.value
+  if (!el) return
+
+  const now = performance.now()
+  const delta = event.clientX - dragStartX
+  if (Math.abs(delta) > 4) dragMoved.value = true
+
+  const dt = Math.max(now - lastPointerTime, 1)
+  // Velocidad en px/frame (~60fps) para la inercia al soltar.
+  dragVelocity = ((lastPointerX - event.clientX) / dt) * 16
+  lastPointerX = event.clientX
+  lastPointerTime = now
+
+  el.scrollLeft = dragScrollLeft - delta
+  normalizeInfiniteScroll()
+}
+
+const endDrag = (event: PointerEvent) => {
+  if (!isDragging.value) return
+  const el = scroller.value
+  isDragging.value = false
+  el?.classList.remove('is-dragging')
+
+  if (el?.hasPointerCapture(event.pointerId)) {
+    el.releasePointerCapture(event.pointerId)
+  }
+
+  if (!el) return
+
+  normalizeInfiniteScroll()
+
+  if (Math.abs(dragVelocity) > MIN_VELOCITY) {
+    runMomentum(el)
+  } else if (dragMoved.value) {
+    void snapToNearestCard(el)
+  }
+}
+
+const onCardClick = (event: MouseEvent) => {
+  // Evita navegar al producto si el usuario arrastró el carrusel.
+  if (dragMoved.value) {
+    event.preventDefault()
+    event.stopPropagation()
+    dragMoved.value = false
+  }
 }
 
 const addProduct = (product: Product) => {
@@ -73,6 +308,24 @@ const addProduct = (product: Product) => {
     imageUrl: getProductImageUrl(product),
   })
 }
+
+const onScroll = () => {
+  normalizeInfiniteScroll()
+}
+
+watch(carouselProducts, () => {
+  centerOnMiddleSet()
+})
+
+onMounted(() => {
+  centerOnMiddleSet()
+  window.addEventListener('resize', centerOnMiddleSet)
+})
+
+onBeforeUnmount(() => {
+  cancelMomentum()
+  window.removeEventListener('resize', centerOnMiddleSet)
+})
 </script>
 
 <template>
@@ -132,16 +385,22 @@ const addProduct = (product: Product) => {
       <div
         v-else
         ref="scroller"
-        class="hide-scroll flex snap-x gap-6 overflow-x-auto pb-8"
+        class="carousel-scroller hide-scroll flex cursor-grab gap-6 overflow-x-auto pb-8 active:cursor-grabbing"
+        @pointerdown="onPointerDown"
+        @pointermove="onPointerMove"
+        @pointerup="endDrag"
+        @pointercancel="endDrag"
+        @scroll.passive="onScroll"
       >
         <article
-          v-for="product in carouselProducts"
-          :key="product.id"
+          v-for="slide in loopSlides"
+          :key="slide.key"
           data-carousel-card
-          class="group relative min-w-[280px] snap-start rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md md:min-w-[320px]"
+          class="group relative min-w-[280px] rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md md:min-w-[320px]"
+          @click.capture="onCardClick"
         >
           <div
-            v-if="isNewProduct(product)"
+            v-if="isNewProduct(slide.product)"
             class="absolute top-4 left-4 z-10"
           >
             <span class="rounded bg-slate-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-800">
@@ -150,15 +409,17 @@ const addProduct = (product: Product) => {
           </div>
 
           <RouterLink
-            :to="getProductPath(product.slug)"
+            :to="getProductPath(slide.product.slug)"
             class="block aspect-[4/5] overflow-hidden rounded-t-lg bg-slate-100"
+            draggable="false"
           >
             <img
-              v-if="getProductImageUrl(product)"
-              :src="getProductImageUrl(product)!"
-              :alt="product.title"
-              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+              v-if="getProductImageUrl(slide.product)"
+              :src="getProductImageUrl(slide.product)!"
+              :alt="slide.product.title"
+              draggable="false"
+              class="pointer-events-none h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            >
             <div
               v-else
               class="flex h-full items-center justify-center text-sm text-slate-400"
@@ -169,26 +430,27 @@ const addProduct = (product: Product) => {
 
           <div class="p-6">
             <RouterLink
-              :to="getProductPath(product.slug)"
+              :to="getProductPath(slide.product.slug)"
               class="mb-1 block text-[20px] leading-tight font-semibold text-slate-900"
+              draggable="false"
             >
-              {{ product.title }}
+              {{ slide.product.title }}
             </RouterLink>
             <p
-              v-if="hasProductShortDescription(product)"
+              v-if="hasProductShortDescription(slide.product)"
               class="prose-cms mb-4 line-clamp-3 text-base text-slate-500 [&_p:last-child]:mb-0"
             >
-              <RichText :data="getProductShortDescription(product)" />
+              <RichText :data="getProductShortDescription(slide.product)" />
             </p>
             <div class="flex items-center justify-between">
               <span class="text-base font-semibold text-slate-900">
-                {{ formatProductPrice(product.priceInUSD) }}
+                {{ formatProductPrice(slide.product.priceInUSD) }}
               </span>
               <button
                 type="button"
                 class="p-2 text-slate-900 transition-colors hover:text-slate-600"
                 aria-label="Añadir al carrito"
-                @click="addProduct(product)"
+                @click="addProduct(slide.product)"
               >
                 +
               </button>
@@ -199,3 +461,20 @@ const addProduct = (product: Product) => {
     </div>
   </section>
 </template>
+
+<style scoped>
+.carousel-scroller {
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel-scroller.is-dragging {
+  user-select: none;
+  cursor: grabbing;
+}
+
+.carousel-scroller.is-dragging a,
+.carousel-scroller.is-dragging button {
+  pointer-events: none;
+}
+</style>
