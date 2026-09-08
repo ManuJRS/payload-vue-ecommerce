@@ -29,7 +29,7 @@ onMounted(loadHeader)
 
 <template>
   <div class="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 text-slate-900">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:px-8">
         <RouterLink
           to="/"
