@@ -48,7 +48,7 @@ onMounted(loadHeader)
             <a
               v-if="item.link?.label && isExternalHref(resolveNavHref(item.link))"
               :href="resolveNavHref(item.link)"
-              class="rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
+              class="cursor-pointer rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
               :target="item.link.newTab ? '_blank' : undefined"
               :rel="item.link.newTab ? 'noopener noreferrer' : undefined"
             >
@@ -58,7 +58,7 @@ onMounted(loadHeader)
             <RouterLink
               v-else-if="item.link?.label"
               :to="resolveNavHref(item.link)"
-              class="rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
+              class="cursor-pointer rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
               :target="item.link.newTab ? '_blank' : undefined"
               :rel="item.link.newTab ? 'noopener noreferrer' : undefined"
             >
@@ -68,7 +68,7 @@ onMounted(loadHeader)
 
           <button
             type="button"
-            class="relative rounded-full bg-emerald-600 px-3 py-1.5 font-medium text-white transition hover:bg-emerald-500"
+            class="relative cursor-pointer rounded-full bg-emerald-600 px-3 py-1.5 font-medium text-white transition hover:bg-emerald-500"
             aria-label="Abrir carrito"
             @click="isCartOpen = true"
           >
