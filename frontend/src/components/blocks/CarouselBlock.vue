@@ -87,6 +87,7 @@ let dragVelocity = 0
 let lastPointerX = 0
 let lastPointerTime = 0
 let momentumFrame: number | null = null
+let pendingPointerId: number | null = null
 
 const FRICTION = 0.92
 const MIN_VELOCITY = 0.35
@@ -238,29 +239,37 @@ const onPointerDown = (event: PointerEvent) => {
   const el = scroller.value
   if (!el) return
 
+  // No bloqueamos el clic hasta confirmar que hay arrastre.
   cancelMomentum()
-  isDragging.value = true
+  isDragging.value = false
   dragMoved.value = false
   dragStartX = event.clientX
   dragScrollLeft = el.scrollLeft
   dragVelocity = 0
   lastPointerX = event.clientX
   lastPointerTime = performance.now()
-  el.setPointerCapture(event.pointerId)
-  el.classList.add('is-dragging')
+  pendingPointerId = event.pointerId
 }
 
 const onPointerMove = (event: PointerEvent) => {
-  if (!isDragging.value) return
+  if (pendingPointerId !== event.pointerId && !isDragging.value) return
   const el = scroller.value
   if (!el) return
 
-  const now = performance.now()
   const delta = event.clientX - dragStartX
-  if (Math.abs(delta) > 4) dragMoved.value = true
 
+  // Hasta superar el umbral, dejamos que el clic llegue a la card.
+  if (!isDragging.value) {
+    if (Math.abs(delta) <= 6) return
+
+    isDragging.value = true
+    dragMoved.value = true
+    el.setPointerCapture(event.pointerId)
+    el.classList.add('is-dragging')
+  }
+
+  const now = performance.now()
   const dt = Math.max(now - lastPointerTime, 1)
-  // Velocidad en px/frame (~60fps) para la inercia al soltar.
   dragVelocity = ((lastPointerX - event.clientX) / dt) * 16
   lastPointerX = event.clientX
   lastPointerTime = now
@@ -270,8 +279,11 @@ const onPointerMove = (event: PointerEvent) => {
 }
 
 const endDrag = (event: PointerEvent) => {
-  if (!isDragging.value) return
   const el = scroller.value
+  const wasDragging = isDragging.value
+  const didMove = dragMoved.value
+
+  pendingPointerId = null
   isDragging.value = false
   el?.classList.remove('is-dragging')
 
@@ -279,15 +291,23 @@ const endDrag = (event: PointerEvent) => {
     el.releasePointerCapture(event.pointerId)
   }
 
-  if (!el) return
+  if (!wasDragging || !el) {
+    dragMoved.value = false
+    return
+  }
 
   normalizeInfiniteScroll()
 
   if (Math.abs(dragVelocity) > MIN_VELOCITY) {
     runMomentum(el)
-  } else if (dragMoved.value) {
+  } else if (didMove) {
     void snapToNearestCard(el)
   }
+
+  // Liberamos el flag tras el ciclo de click para no bloquear navegación accidentalmente.
+  window.setTimeout(() => {
+    dragMoved.value = false
+  }, 0)
 }
 
 const onCardClick = (event: MouseEvent) => {
