@@ -28,8 +28,8 @@ onMounted(loadHeader)
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 text-slate-900">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
+  <div class="flex min-h-screen flex-col overflow-x-clip bg-slate-50 text-slate-900">
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:px-8">
         <RouterLink
           to="/"
@@ -48,7 +48,7 @@ onMounted(loadHeader)
             <a
               v-if="item.link?.label && isExternalHref(resolveNavHref(item.link))"
               :href="resolveNavHref(item.link)"
-              class="rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
+              class="cursor-pointer rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
               :target="item.link.newTab ? '_blank' : undefined"
               :rel="item.link.newTab ? 'noopener noreferrer' : undefined"
             >
@@ -58,7 +58,7 @@ onMounted(loadHeader)
             <RouterLink
               v-else-if="item.link?.label"
               :to="resolveNavHref(item.link)"
-              class="rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
+              class="cursor-pointer rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-indigo-700"
               :target="item.link.newTab ? '_blank' : undefined"
               :rel="item.link.newTab ? 'noopener noreferrer' : undefined"
             >
@@ -68,7 +68,7 @@ onMounted(loadHeader)
 
           <button
             type="button"
-            class="relative rounded-full bg-emerald-600 px-3 py-1.5 font-medium text-white transition hover:bg-emerald-500"
+            class="relative cursor-pointer rounded-full bg-emerald-600 px-3 py-1.5 font-medium text-white transition hover:bg-emerald-500"
             aria-label="Abrir carrito"
             @click="isCartOpen = true"
           >
